@@ -9,15 +9,15 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f0f7f1;color:#183b2a}
 header,footer{background:#126b45;color:white;text-align:center;padding:22px 15px}
-nav{background:#084d32;padding:13px;text-align:center}
-nav a{color:white;margin:8px;text-decoration:none;display:inline-block}
+nav{background:#084d32;padding:12px;text-align:center}
+nav a{color:white;margin:7px;text-decoration:none;display:inline-block}
 main{max-width:700px;margin:auto;padding:15px}
 .card{background:white;border-radius:15px;padding:19px;margin:15px 0;box-shadow:0 3px 12px #0001}
 h2{color:#126b45}
 input{display:block;width:100%;padding:12px;margin:9px 0;border:1px solid #b9cbbd;border-radius:8px;font-size:16px}
-.btn{display:inline-block;background:#16804f;color:white;border:0;border-radius:9px;padding:12px 15px;margin:5px 3px;cursor:pointer;font-size:15px}
+.btn{background:#16804f;color:white;border:0;border-radius:9px;padding:12px 15px;margin:5px 3px;cursor:pointer;font-size:15px}
 .badge{display:inline-block;background:#d9f4df;padding:9px 12px;border-radius:20px;margin:4px}
-.note{font-size:13px;color:#5c7163}
+.note{font-size:13px;color:#5c7163;overflow-wrap:anywhere}
 li{padding:7px}
 [hidden]{display:none!important}
 </style>
@@ -27,7 +27,6 @@ li{padding:7px}
 <h1>🌱 ECO-SIGNAL 2.0</h1>
 <p>Toza kampus — yashil kelajak!</p>
 </header>
-
 <nav>
 <a href="#about">Loyiha</a>
 <a href="#report">Xabar berish</a>
@@ -39,7 +38,7 @@ li{padding:7px}
 <main>
 <section class="card" id="about">
 <h2>🌍 Bizning maqsadimiz</h2>
-<p>ECO-SIGNAL 2.0 — universitetlarda ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish loyihasi.</p>
+<p>ECO-SIGNAL 2.0 — ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish loyihasi.</p>
 <div class="badge">♻️ Chiqindilar</div>
 <div class="badge">💧 Suvni asrash</div>
 <div class="badge">🌳 Yashil hududlar</div>
@@ -47,15 +46,14 @@ li{padding:7px}
 
 <section class="card" id="report">
 <h2>📢 Ekologik muammo haqida xabar</h2>
-<p>Ekologik muammo haqida xabar yuborish uchun tugmani bosing.</p>
+<p>Ekologik muammo haqida xabar yuboring.</p>
 <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSftEO9twdRJ7mHkuIq1_Hwz1k33u_h1XsnfYSXxF3KTE7FoAg/viewform" target="_blank" rel="noopener">📝 Xabar berish</a>
-<p class="note">Xabar yuborish avtomatik ball bermaydi. Ballar tasdiqlangandan keyin beriladi.</p>
+<p class="note">Xabar tekshirilgandan keyin ball beriladi.</p>
 </section>
 
 <section class="card" id="account">
 <h2>👤 Talaba akkaunti</h2>
 <div id="authForms">
-<p>Yangi akkaunt oching yoki mavjud akkauntingizga kiring.</p>
 <input id="fullName" placeholder="Ism va familiya (ro‘yxatdan o‘tishda)" autocomplete="name">
 <input id="email" type="email" placeholder="Email manzilingiz" autocomplete="email">
 <input id="password" type="password" placeholder="Parol (kamida 6 belgi)" autocomplete="current-password">
@@ -75,199 +73,151 @@ li{padding:7px}
 <div class="badge">🌱 Ball: <strong id="ecoPoints">—</strong></div>
 <div class="badge">🏅 Daraja: <strong id="ecoLevel">—</strong></div>
 <p id="ecoNext">Ballarni ko‘rish uchun akkauntga kiring.</p>
-<p class="note">Ballar bazadan olinadi. Talaba o‘z ballini mustaqil oshira olmaydi.</p>
 </section>
 
 <section class="card" id="ranking">
 <h2>🏆 Talabalar reytingi</h2>
 <button class="btn" id="refreshRanking">Reytingni yangilash</button>
 <ol id="leaderboard"><li>Reyting yuklanmoqda...</li></ol>
-<p class="note">Reyting bazada mavjud foydalanuvchilarni ko‘rsatadi.</p>
 </section>
 </main>
 
 <footer>
 <p>ECO-SIGNAL 2.0 © 2026</p>
-<p style="color:#cfe9d8">Yashil kelajak — bizning qo‘limizda!</p>
+<p>Yashil kelajak — bizning qo‘limizda!</p>
 </footer>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import {
-  getAuth, createUserWithEmailAndPassword,
-  signInWithEmailAndPassword, signOut, onAuthStateChanged
+ getAuth,createUserWithEmailAndPassword,
+ signInWithEmailAndPassword,signOut,onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, collection,
-  getDocs, query, orderBy, limit, serverTimestamp
+ getFirestore,doc,getDoc,setDoc,collection,
+ getDocs,query,orderBy,limit,serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBb-EV5Ws-uojOujnZQgPO2cImBzUjdFaw",
-  authDomain: "eco-signal-2.firebaseapp.com",
-  projectId: "eco-signal-2",
-  storageBucket: "eco-signal-2.firebasestorage.app",
-  messagingSenderId: "759381647993",
-  appId: "1:759381647993:web:41ada6895b5218ca0aaaa8",
-  measurementId: "G-D610ZXZS5D"
+ apiKey: "AIzaSyBb-EV5Ws-uojOujnQZgPO2cImBzUjdFaw",
+ authDomain: "eco-signal-2.firebaseapp.com",
+ projectId: "eco-signal-2",
+ storageBucket: "eco-signal-2.firebasestorage.app",
+ messagingSenderId: "759381647993",
+ appId: "1:759381647993:web:41ada6895b5218ca0aaaa8",
+ measurementId: "G-D610ZXZS5D"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const el = id => document.getElementById(id);
-const status = message => el("status").textContent = message;
+const $ = id => document.getElementById(id);
+const status = msg => $("status").textContent = msg;
 
-function levelFor(points) {
-  if (points >= 200) return "Gold";
-  if (points >= 100) return "Silver";
-  if (points >= 50) return "Bronze";
-  return "Yangi ishtirokchi";
+let auth,db;
+try {
+ const app = initializeApp(firebaseConfig);
+ auth = getAuth(app);
+ db = getFirestore(app);
+ status("Firebase ishga tushdi. Akkauntni tekshirish mumkin.");
+} catch(e) {
+ status("Firebase sozlamasi xatosi: " + e.message);
 }
 
+function level(points) {
+ if(points>=200)return "Gold";
+ if(points>=100)return "Silver";
+ if(points>=50)return "Bronze";
+ return "Yangi ishtirokchi";
+}
 function showPoints(points) {
-  el("ecoPoints").textContent = points;
-  el("ecoLevel").textContent = levelFor(points);
-  const next = points < 50 ? 50 : points < 100 ? 100 : points < 200 ? 200 : null;
-  el("ecoNext").textContent = next
-    ? `Keyingi daraja: ${next} ball`
-    : "🏆 Gold darajasiga yetdingiz!";
+ $("ecoPoints").textContent=points;
+ $("ecoLevel").textContent=level(points);
+ const next=points<50?50:points<100?100:points<200?200:null;
+ $("ecoNext").textContent=next?`Keyingi daraja: ${next} ball`:"Gold darajasiga yetdingiz!";
 }
 
-el("registerBtn").addEventListener("click", async () => {
-  const name = el("fullName").value.trim();
-  const email = el("email").value.trim();
-  const password = el("password").value;
+$("registerBtn").onclick=async()=>{
+ if(!auth||!db)return status("Firebase ishga tushmadi. Config va API keyni tekshiring.");
+ const name=$("fullName").value.trim();
+ const email=$("email").value.trim();
+ const password=$("password").value;
+ if(!name)return status("Ism va familiyangizni kiriting.");
+ if(!email||password.length<6)return status("Email va kamida 6 belgili parol kiriting.");
+ try{
+  status("Akkaunt yaratilmoqda...");
+  const result=await createUserWithEmailAndPassword(auth,email,password);
+  await setDoc(doc(db,"users",result.user.uid),{
+   name:name,points:0,createdAt:serverTimestamp()
+  });
+  status("Akkaunt muvaffaqiyatli yaratildi!");
+ }catch(e){status("Ro‘yxatdan o‘tish xatosi: "+e.code+" — "+e.message);}
+};
 
-  if (!name) return status("Ism va familiyangizni kiriting.");
-  if (!email || password.length < 6)
-    return status("Email kiriting va parol kamida 6 belgidan iborat bo‘lsin.");
+$("loginBtn").onclick=async()=>{
+ if(!auth)return status("Firebase ishga tushmadi. Configni tekshiring.");
+ const email=$("email").value.trim();
+ const password=$("password").value;
+ if(!email||!password)return status("Email va parolni kiriting.");
+ try{
+  status("Tizimga kirilmoqda...");
+  await signInWithEmailAndPassword(auth,email,password);
+  status("Kirish muvaffaqiyatli!");
+ }catch(e){status("Kirish xatosi: "+e.code+" — "+e.message);}
+};
 
-  try {
-    status("Akkaunt yaratilmoqda...");
-    const result = await createUserWithEmailAndPassword(auth, email, password);
+$("logoutBtn").onclick=async()=>{
+ try{await signOut(auth);status("Akkauntdan chiqdingiz.");}
+ catch(e){status("Chiqish xatosi: "+e.message);}
+};
 
-    await setDoc(doc(db, "users", result.user.uid), {
-      name: name,
-      points: 0,
-      createdAt: serverTimestamp()
-    });
-
-    status("Akkaunt yaratildi!");
-  } catch (error) {
-    status("Xatolik: " + error.message);
-  }
-});
-
-el("loginBtn").addEventListener("click", async () => {
-  const email = el("email").value.trim();
-  const password = el("password").value;
-
-  if (!email || !password) return status("Email va parolni kiriting.");
-
-  try {
-    status("Tizimga kirilmoqda...");
-    await signInWithEmailAndPassword(auth, email, password);
-    status("Muvaffaqiyatli kirdingiz.");
-  } catch (error) {
-    status("Kirishda xatolik: " + error.message);
-  }
-});
-
-el("logoutBtn").addEventListener("click", async () => {
-  try {
-    await signOut(auth);
-    status("Akkauntdan chiqdingiz.");
-  } catch (error) {
-    status("Xatolik: " + error.message);
-  }
-});
-
-onAuthStateChanged(auth, async user => {
-  el("authForms").hidden = !!user;
-  el("signedIn").hidden = !user;
-
-  if (!user) {
-    el("userName").textContent = "";
-    el("userEmail").textContent = "";
-    el("ecoPoints").textContent = "—";
-    el("ecoLevel").textContent = "—";
-    el("ecoNext").textContent = "Ballarni ko‘rish uchun akkauntga kiring.";
-    await loadLeaderboard();
-    return;
-  }
-
-  el("userEmail").textContent = user.email || "";
-
-  try {
-    const profileRef = doc(db, "users", user.uid);
-    let snap = await getDoc(profileRef);
-
-    // Eski akkauntda profil yo‘q bo‘lsa, uni yaratishga urinish.
-    if (!snap.exists()) {
-      const name = el("fullName").value.trim()
-        || user.displayName
-        || (user.email ? user.email.split("@")[0] : "Talaba");
-
-      await setDoc(profileRef, {
-        name: name,
-        points: 0,
-        createdAt: serverTimestamp()
-      });
-
-      snap = await getDoc(profileRef);
-    }
-
-    if (!snap.exists()) {
-      status("Profil topilmadi. Firestore Rules sozlamalarini tekshiring.");
-      el("userName").textContent = user.email || "Talaba";
-      return;
-    }
-
-    const data = snap.data();
-    el("userName").textContent = data.name || "Talaba";
-    showPoints(Number(data.points) || 0);
-    status("Akkauntingiz Firebase bilan ulandi.");
-    await loadLeaderboard();
-
-  } catch (error) {
-    status("Profil xatosi: " + error.message);
-    await loadLeaderboard();
-  }
-});
-
-async function loadLeaderboard() {
-  const list = el("leaderboard");
-  list.innerHTML = "<li>Yuklanmoqda...</li>";
-
-  try {
-    const q = query(
-      collection(db, "users"),
-      orderBy("points", "desc"),
-      limit(10)
-    );
-    const result = await getDocs(q);
-    list.innerHTML = "";
-
-    if (result.empty) {
-      list.innerHTML = "<li>Hozircha foydalanuvchilar yo‘q.</li>";
-      return;
-    }
-
-    let position = 1;
-    result.forEach(item => {
-      const data = item.data();
-      const li = document.createElement("li");
-      li.textContent = `${position}. ${data.name || "Talaba"} — ${Number(data.points) || 0} ball`;
-      list.appendChild(li);
-      position++;
-    });
-  } catch (error) {
-    list.innerHTML = "<li>Reytingni yuklab bo‘lmadi. Firestore Rules sozlamalarini tekshiring.</li>";
-  }
+async function loadLeaderboard(){
+ const list=$("leaderboard");
+ list.innerHTML="<li>Yuklanmoqda...</li>";
+ if(!db){list.innerHTML="<li>Firebase ulanmagan.</li>";return;}
+ try{
+  const q=query(collection(db,"users"),orderBy("points","desc"),limit(10));
+  const result=await getDocs(q);
+  list.innerHTML="";
+  if(result.empty){list.innerHTML="<li>Hozircha foydalanuvchilar yo‘q.</li>";return;}
+  let i=1;
+  result.forEach(item=>{
+   const d=item.data(),li=document.createElement("li");
+   li.textContent=`${i++}. ${d.name||"Talaba"} — ${Number(d.points)||0} ball`;
+   list.appendChild(li);
+  });
+ }catch(e){list.innerHTML="<li>Reyting xatosi: "+e.code+"</li>";}
 }
+$("refreshRanking").onclick=loadLeaderboard;
 
-el("refreshRanking").addEventListener("click", loadLeaderboard);
+if(auth&&db){
+ onAuthStateChanged(auth,async user=>{
+  $("authForms").hidden=!!user;
+  $("signedIn").hidden=!user;
+  if(!user){
+   $("userName").textContent="";
+   $("userEmail").textContent="";
+   $("ecoPoints").textContent="—";
+   $("ecoLevel").textContent="—";
+   $("ecoNext").textContent="Ballarni ko‘rish uchun akkauntga kiring.";
+   await loadLeaderboard();
+   return;
+  }
+  $("userEmail").textContent=user.email||"";
+  try{
+   const ref=doc(db,"users",user.uid);
+   let snap=await getDoc(ref);
+   if(!snap.exists()){
+    const name=$("fullName").value.trim()||
+      (user.email?user.email.split("@")[0]:"Talaba");
+    await setDoc(ref,{name,points:0,createdAt:serverTimestamp()});
+    snap=await getDoc(ref);
+   }
+   const d=snap.data();
+   $("userName").textContent=d.name||"Talaba";
+   showPoints(Number(d.points)||0);
+   status("Akkauntingiz Firebase bilan ulandi.");
+  }catch(e){status("Profil xatosi: "+e.code+" — "+e.message);}
+  await loadLeaderboard();
+ });
+}
 </script>
 </body>
 </html>
