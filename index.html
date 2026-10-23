@@ -1,1 +1,104 @@
 
+<!DOCTYPE html><html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECO-SIGNAL 2.0</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f0f7f1;color:#183b2a}
+header{background:#126b45;color:white;padding:24px 18px;text-align:center}
+header h1{margin:0;font-size:30px}
+header p{margin-bottom:0}
+nav{background:#084d32;padding:13px;text-align:center}
+nav a{color:white;text-decoration:none;margin:8px;font-size:14px}
+main{max-width:700px;margin:auto;padding:18px}
+.card{background:white;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 3px 12px #0001}
+h2{color:#126b45}
+button{background:#16804f;color:white;border:0;border-radius:9px;padding:12px 17px;font-size:16px;cursor:pointer}
+input,select,textarea{width:100%;padding:12px;margin:7px 0 14px;border:1px solid #b7cbbb;border-radius:8px;font-size:16px}
+label{font-weight:bold}
+.badge{display:inline-block;background:#d9f4df;padding:8px 12px;border-radius:20px;margin:4px}
+footer{text-align:center;padding:24px;background:#084d32;color:white}
+.small{font-size:13px;color:#5c7163}
+</style>
+</head>
+<body>
+<header>
+<h1>🌱 ECO-SIGNAL 2.0</h1>
+<p>Toza kampus — yashil kelajak!</p>
+</header>
+<nav>
+<a href="#about">Loyiha</a>
+<a href="#report">Xabar berish</a>
+<a href="#points">Eco-ball</a>
+</nav>
+<main>
+<section class="card" id="about">
+<h2>🌍 Bizning maqsadimiz</h2>
+<p>ECO-SIGNAL 2.0 — universitetlarda ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish uchun yaratilayotgan yoshlar loyihasi.</p>
+<div class="badge">♻️ Chiqindilar</div>
+<div class="badge">💧 Suvni asrash</div>
+<div class="badge">🌳 Yashil hududlar</div>
+</section>
+<section class="card" id="report">
+<h2>📢 Ekologik muammo haqida xabar</h2>
+<p>Muammo haqida ma’lumot kiriting.</p>
+<form id="reportForm">
+<label>Universitet nomi</label>
+<input id="university" placeholder="Universitet nomi" required>
+<label>Muammo turi</label>
+<select id="type" required>
+<option value="">Tanlang</option>
+<option>Chiqindi</option>
+<option>Suv isrofi</option>
+<option>Daraxt yoki yashil hududga zarar</option>
+<option>Boshqa ekologik muammo</option>
+</select>
+<label>Muammo joyi</label>
+<input id="place" placeholder="Masalan: universitet hovlisi" required>
+<label>Muammo tavsifi</label>
+<textarea id="description" rows="4" placeholder="Muammoni tushuntiring..." required></textarea>
+<button type="submit">Xabarni ko‘rsatish</button>
+</form>
+<div id="result"></div>
+<p class="small">Prototip: xabar serverga yuborilmaydi, faqat ushbu sahifada ko‘rsatiladi.</p>
+</section>
+<section class="card" id="points">
+<h2>🏆 Eco-ball tizimi</h2>
+<p>Sizning namunaviy ballingiz:</p>
+<h1><span id="pointsValue">0</span> 🌿 ball</h1>
+<p id="level">Yangi ekologiya do‘sti</p>
+<button id="demoButton" type="button">Namunaviy ball olish (+10)</button>
+<p class="small">Bu faqat namoyish uchun. Ballar serverda saqlanmaydi va rasmiy reyting hisoblanmaydi.</p>
+</section>
+<section class="card">
+<h2>📱 QR-kod orqali xabar berish</h2>
+<p>Kelajakda kampusdagi QR-kod orqali ushbu xabar berish sahifasini ochish mumkin.</p>
+<p class="small">QR-kod va serverga xabar yuborish funksiyasi hozircha sozlanmagan.</p>
+</section>
+</main>
+<footer>
+<p>🌱 ECO-SIGNAL 2.0</p>
+<p>Tabiatni asrash — barchamizning vazifamiz.</p>
+</footer>
+<script>
+document.getElementById("reportForm").addEventListener("submit",function(e){
+e.preventDefault();
+document.getElementById("result").innerHTML=
+"<h3>✅ Xabar prototipi tayyor</h3><p><b>Universitet:</b> "+escapeText(document.getElementById("university").value)+"</p><p><b>Muammo:</b> "+escapeText(document.getElementById("type").value)+"</p><p><b>Joy:</b> "+escapeText(document.getElementById("place").value)+"</p><p><b>Tavsif:</b> "+escapeText(document.getElementById("description").value)+"</p><p class='small'>Bu ma’lumot serverga yuborilmadi.</p>";
+});
+function escapeText(s){
+return s.replace(/[&<>"']/g,function(c){
+return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+});
+}
+let points=0;
+document.getElementById("demoButton").addEventListener("click",function(){
+points+=10;
+document.getElementById("pointsValue").textContent=points;
+document.getElementById("level").textContent=points>=50?"Yashil yetakchi 🌳":points>=20?"Faol ekolog 🌿":"Yangi ekologiya do‘sti";
+});
+</script>
+</body>
+</html>
