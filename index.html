@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uz">
 <head>
@@ -15,10 +16,13 @@ nav a{color:white;text-decoration:none;margin:8px;font-size:14px}
 main{max-width:700px;margin:auto;padding:18px}
 .card{background:white;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 3px 12px #0001}
 h2{color:#126b45}
-.btn{display:inline-block;background:#16804f;color:white;text-decoration:none;border-radius:9px;padding:14px 20px;font-size:17px;font-weight:bold}
+.btn{display:inline-block;background:#16804f;color:white;text-decoration:none;border:0;border-radius:9px;padding:12px 16px;font-size:16px;font-weight:bold;cursor:pointer;margin:5px 0}
 .badge{display:inline-block;background:#d9f4df;padding:8px 12px;border-radius:20px;margin:4px}
 .note{font-size:13px;color:#5c7163}
+.progress{height:12px;background:#e3eee5;border-radius:20px;overflow:hidden;margin:12px 0}
+.progress-fill{height:100%;width:0;background:#16804f;transition:width .3s}
 footer{text-align:center;padding:24px;background:#084d32;color:white}
+button:focus-visible,a:focus-visible{outline:3px solid #e4ad36;outline-offset:3px}
 </style>
 </head>
 <body>
@@ -35,7 +39,6 @@ footer{text-align:center;padding:24px;background:#084d32;color:white}
 </nav>
 
 <main>
-
 <section class="card" id="about">
 <h2>🌍 Bizning maqsadimiz</h2>
 <p>ECO-SIGNAL 2.0 — universitetlarda ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish uchun yaratilayotgan yoshlar loyihasi.</p>
@@ -48,14 +51,35 @@ footer{text-align:center;padding:24px;background:#084d32;color:white}
 <h2>📢 Ekologik muammo haqida xabar</h2>
 <p>Universitetda ekologik muammo ko‘rsangiz, quyidagi tugmani bosing. Google Forms shakli ochiladi. U yerda universitet nomi, muammo turi, joyi va tavsifini yozasiz.</p>
 <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSftEO9twdRJ7mHkuIq1_Hwz1k33u_h1XsnfYSXxF3KTE7FoAg/viewform" target="_blank" rel="noopener">📝 Xabar berish</a>
-<p class="note">Xabarlar Google Forms orqali yig‘iladi. Bu hozircha prototip.</p>
+<p class="note">Xabarlar Google Forms orqali yig‘iladi. Muammoni yuborishning o‘zi hali ball olishni anglatmaydi.</p>
 </section>
 
 <section class="card" id="points">
-<h2>⭐ Eco-ball</h2>
-<p>Eco-ball tizimi (ball va darajalar) hozircha ishlab chiqilmoqda. Hali ishlamaydi.</p>
-</section>
+<h2>⭐ Mening Eco-ballim</h2>
+<p>Ekologiyani asrashdagi faol ishtirokingizni kuzatib boring.</p>
 
+<div class="badge">🌱 Ball: <strong id="ecoPoints">0</strong></div>
+<div class="badge">🏅 Daraja: <strong id="ecoLevel">Yangi ishtirokchi</strong></div>
+
+<div class="progress">
+<div class="progress-fill" id="ecoProgress"></div>
+</div>
+<p id="ecoNext">Keyingi daraja: Bronze — 50 ball</p>
+
+<button class="btn" type="button" id="rulesButton" aria-expanded="false">📋 Ball olish qoidalari</button>
+
+<div id="ecoRules" hidden>
+<p>🌿 Tasdiqlangan ekologik xabar — 10 ball.</p>
+<p>📸 Muammoni hal etishga tasdiqlangan yordam — qo‘shimcha 20 ball.</p>
+<p class="note">Bu qoidalar hozircha reja. Haqiqiy ballar mas’ul koordinator tasdiqlagandan keyingina berilishi kerak.</p>
+</div>
+
+<div style="margin-top:12px">
+<button class="btn" type="button" id="demoButton">🧪 Demo: 10 ball sinash</button>
+</div>
+<p id="ecoMessage" class="note" role="status">Demo rejimi: ballar faqat shu brauzerda saqlanadi. Google Sheets bilan ulanmagan.</p>
+<button class="btn" type="button" id="resetButton" style="background:#66756b">Ballarni nolga tushirish</button>
+</section>
 </main>
 
 <footer>
@@ -63,5 +87,74 @@ footer{text-align:center;padding:24px;background:#084d32;color:white}
 <p class="note" style="color:#cfe9d8">Prototip versiya</p>
 </footer>
 
+<script>
+(function(){
+  const pointsKey = "ecoSignalDemoPoints";
+  const pointsEl = document.getElementById("ecoPoints");
+  const levelEl = document.getElementById("ecoLevel");
+  const progressEl = document.getElementById("ecoProgress");
+  const nextEl = document.getElementById("ecoNext");
+  const messageEl = document.getElementById("ecoMessage");
+  const rulesButton = document.getElementById("rulesButton");
+  const rules = document.getElementById("ecoRules");
+
+  function getPoints(){
+    return Number(localStorage.getItem(pointsKey) || 0);
+  }
+
+  function updatePoints(){
+    const points = getPoints();
+    let level = "Yangi ishtirokchi";
+    let next = 50;
+    let previous = 0;
+
+    if(points >= 200){
+      level = "Gold";
+      next = 200;
+      previous = 200;
+    }else if(points >= 100){
+      level = "Silver";
+      next = 200;
+      previous = 100;
+    }else if(points >= 50){
+      level = "Bronze";
+      next = 100;
+      previous = 50;
+    }
+
+    pointsEl.textContent = points;
+    levelEl.textContent = level;
+
+    if(points >= 200){
+      progressEl.style.width = "100%";
+      nextEl.textContent = "🏆 Gold darajasiga yetdingiz!";
+    }else{
+      progressEl.style.width = Math.min(100, ((points - previous) / (next - previous)) * 100) + "%";
+      nextEl.textContent = "Keyingi bosqich: " + next + " ball";
+    }
+  }
+
+  rulesButton.addEventListener("click", function(){
+    rules.hidden = !rules.hidden;
+    rulesButton.setAttribute("aria-expanded", String(!rules.hidden));
+  });
+
+  document.getElementById("demoButton").addEventListener("click", function(){
+    localStorage.setItem(pointsKey, String(getPoints() + 10));
+    updatePoints();
+    messageEl.textContent = "Demo uchun 10 ball qo‘shildi. Bu haqiqiy tasdiqlangan ekologik faoliyat balli emas.";
+  });
+
+  document.getElementById("resetButton").addEventListener("click", function(){
+    if(confirm("Demo ballarini nolga tushirmoqchimisiz?")){
+      localStorage.removeItem(pointsKey);
+      updatePoints();
+      messageEl.textContent = "Demo ballari nolga tushirildi.";
+    }
+  });
+
+  updatePoints();
+})();
+</script>
 </body>
 </html>
