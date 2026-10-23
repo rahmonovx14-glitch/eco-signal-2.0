@@ -3,45 +3,41 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ECO-SIGNAL 2.0</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,sans-serif;background:#f0f7f1;color:#183b2a}
-header{background:#126b45;color:white;padding:24px 18px;text-align:center}
-header h1{margin:0;font-size:30px}
-header p{margin-bottom:0}
+header,footer{background:#126b45;color:white;text-align:center;padding:22px 15px}
 nav{background:#084d32;padding:13px;text-align:center}
-nav a{color:white;text-decoration:none;margin:8px;font-size:14px}
-main{max-width:700px;margin:auto;padding:18px}
-.card{background:white;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 3px 12px #0001}
+nav a{color:white;margin:8px;text-decoration:none}
+main{max-width:700px;margin:auto;padding:15px}
+.card{background:white;border-radius:15px;padding:19px;margin:15px 0;box-shadow:0 3px 12px #0001}
 h2{color:#126b45}
-.btn{display:inline-block;background:#16804f;color:white;text-decoration:none;border:0;border-radius:9px;padding:12px 16px;font-size:16px;font-weight:bold;cursor:pointer;margin:5px 0}
-.badge{display:inline-block;background:#d9f4df;padding:8px 12px;border-radius:20px;margin:4px}
+input{display:block;width:100%;padding:12px;margin:9px 0;border:1px solid #b9cbbd;border-radius:8px;font-size:16px}
+.btn{display:inline-block;background:#16804f;color:white;border:0;border-radius:9px;padding:12px 15px;margin:5px 3px;cursor:pointer;font-size:15px}
+.badge{display:inline-block;background:#d9f4df;padding:9px 12px;border-radius:20px;margin:4px}
 .note{font-size:13px;color:#5c7163}
-.progress{height:12px;background:#e3eee5;border-radius:20px;overflow:hidden;margin:12px 0}
-.progress-fill{height:100%;width:0;background:#16804f;transition:width .3s}
-footer{text-align:center;padding:24px;background:#084d32;color:white}
-button:focus-visible,a:focus-visible{outline:3px solid #e4ad36;outline-offset:3px}
+li{padding:7px}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
-
 <header>
 <h1>🌱 ECO-SIGNAL 2.0</h1>
 <p>Toza kampus — yashil kelajak!</p>
 </header>
-
 <nav>
 <a href="#about">Loyiha</a>
 <a href="#report">Xabar berish</a>
+<a href="#account">Akkaunt</a>
 <a href="#points">Eco-ball</a>
+<a href="#ranking">Reyting</a>
 </nav>
-
 <main>
 <section class="card" id="about">
 <h2>🌍 Bizning maqsadimiz</h2>
-<p>ECO-SIGNAL 2.0 — universitetlarda ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish uchun yaratilayotgan yoshlar loyihasi.</p>
+<p>ECO-SIGNAL 2.0 — universitetlarda ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish loyihasi.</p>
 <div class="badge">♻️ Chiqindilar</div>
 <div class="badge">💧 Suvni asrash</div>
 <div class="badge">🌳 Yashil hududlar</div>
@@ -49,112 +45,190 @@ button:focus-visible,a:focus-visible{outline:3px solid #e4ad36;outline-offset:3p
 
 <section class="card" id="report">
 <h2>📢 Ekologik muammo haqida xabar</h2>
-<p>Universitetda ekologik muammo ko‘rsangiz, quyidagi tugmani bosing. Google Forms shakli ochiladi. U yerda universitet nomi, muammo turi, joyi va tavsifini yozasiz.</p>
+<p>Ekologik muammo haqida xabar yuborish uchun quyidagi tugmani bosing.</p>
 <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSftEO9twdRJ7mHkuIq1_Hwz1k33u_h1XsnfYSXxF3KTE7FoAg/viewform" target="_blank" rel="noopener">📝 Xabar berish</a>
-<p class="note">Xabarlar Google Forms orqali yig‘iladi. Muammoni yuborishning o‘zi hali ball olishni anglatmaydi.</p>
+<p class="note">Xabar yuborish avtomatik ball bermaydi. Ballar tasdiqlangandan keyin beriladi.</p>
+</section>
+
+<section class="card" id="account">
+<h2>👤 Talaba akkaunti</h2>
+<div id="authForms">
+<p>Yangi akkaunt oching yoki mavjud akkauntingizga kiring.</p>
+<input id="fullName" placeholder="Ism va familiya (ro‘yxatdan o‘tishda)">
+<input id="email" type="email" placeholder="Email manzilingiz" autocomplete="email">
+<input id="password" type="password" placeholder="Parol (kamida 6 belgi)" autocomplete="current-password">
+<button class="btn" id="registerBtn">Ro‘yxatdan o‘tish</button>
+<button class="btn" id="loginBtn">Kirish</button>
+</div>
+<div id="signedIn" hidden>
+<p>Akkaunt: <strong id="userName"></strong></p>
+<p id="userEmail"></p>
+<button class="btn" id="logoutBtn">Chiqish</button>
+</div>
+<p id="status" class="note" role="status">Firebase bilan ulanish kutilmoqda...</p>
 </section>
 
 <section class="card" id="points">
 <h2>⭐ Mening Eco-ballim</h2>
-<p>Ekologiyani asrashdagi faol ishtirokingizni kuzatib boring.</p>
+<div class="badge">🌱 Ball: <strong id="ecoPoints">—</strong></div>
+<div class="badge">🏅 Daraja: <strong id="ecoLevel">—</strong></div>
+<p id="ecoNext">Ballarni ko‘rish uchun akkauntga kiring.</p>
+<p class="note">Ballar Firestore bazasidan olinadi. Talaba o‘z ballini mustaqil oshira olmaydi.</p>
+</section>
 
-<div class="badge">🌱 Ball: <strong id="ecoPoints">0</strong></div>
-<div class="badge">🏅 Daraja: <strong id="ecoLevel">Yangi ishtirokchi</strong></div>
-
-<div class="progress">
-<div class="progress-fill" id="ecoProgress"></div>
-</div>
-<p id="ecoNext">Keyingi daraja: Bronze — 50 ball</p>
-
-<button class="btn" type="button" id="rulesButton" aria-expanded="false">📋 Ball olish qoidalari</button>
-
-<div id="ecoRules" hidden>
-<p>🌿 Tasdiqlangan ekologik xabar — 10 ball.</p>
-<p>📸 Muammoni hal etishga tasdiqlangan yordam — qo‘shimcha 20 ball.</p>
-<p class="note">Bu qoidalar hozircha reja. Haqiqiy ballar mas’ul koordinator tasdiqlagandan keyingina berilishi kerak.</p>
-</div>
-
-<div style="margin-top:12px">
-<button class="btn" type="button" id="demoButton">🧪 Demo: 10 ball sinash</button>
-</div>
-<p id="ecoMessage" class="note" role="status">Demo rejimi: ballar faqat shu brauzerda saqlanadi. Google Sheets bilan ulanmagan.</p>
-<button class="btn" type="button" id="resetButton" style="background:#66756b">Ballarni nolga tushirish</button>
+<section class="card" id="ranking">
+<h2>🏆 Talabalar reytingi</h2>
+<button class="btn" id="refreshRanking">Reytingni yangilash</button>
+<ol id="leaderboard"><li>Reyting yuklanmoqda...</li></ol>
+<p class="note">Reytingda faqat ro‘yxatdan o‘tgan va bazada mavjud foydalanuvchilar ko‘rinadi.</p>
 </section>
 </main>
-
 <footer>
 <p>ECO-SIGNAL 2.0 © 2026</p>
-<p class="note" style="color:#cfe9d8">Prototip versiya</p>
+<p class="note" style="color:#cfe9d8">Yashil kelajak — bizning qo‘limizda!</p>
 </footer>
 
-<script>
-(function(){
-  const pointsKey = "ecoSignalDemoPoints";
-  const pointsEl = document.getElementById("ecoPoints");
-  const levelEl = document.getElementById("ecoLevel");
-  const progressEl = document.getElementById("ecoProgress");
-  const nextEl = document.getElementById("ecoNext");
-  const messageEl = document.getElementById("ecoMessage");
-  const rulesButton = document.getElementById("rulesButton");
-  const rules = document.getElementById("ecoRules");
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs,
+  query, orderBy, limit, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-  function getPoints(){
-    return Number(localStorage.getItem(pointsKey) || 0);
+const firebaseConfig = {
+  apiKey: "AIzaSyBb-EV5Ws-uojOujnQZgPO2cImBzUjdFaw",
+  authDomain: "eco-signal-2.firebaseapp.com",
+  projectId: "eco-signal-2",
+  storageBucket: "eco-signal-2.firebasestorage.app",
+  messagingSenderId: "759381647993",
+  appId: "1:759381647993:web:41ada6895b5218ca0aaaa8",
+  measurementId: "G-D610ZXZS5D"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const el = id => document.getElementById(id);
+const status = message => { el("status").textContent = message; };
+
+function levelFor(points) {
+  if (points >= 200) return "Gold";
+  if (points >= 100) return "Silver";
+  if (points >= 50) return "Bronze";
+  return "Yangi ishtirokchi";
+}
+
+function showPoints(points) {
+  el("ecoPoints").textContent = points;
+  el("ecoLevel").textContent = levelFor(points);
+  const next = points < 50 ? 50 : points < 100 ? 100 : points < 200 ? 200 : null;
+  el("ecoNext").textContent = next
+    ? `Keyingi daraja: ${next} ball`
+    : "🏆 Gold darajasiga yetdingiz!";
+}
+
+el("registerBtn").addEventListener("click", async () => {
+  const name = el("fullName").value.trim();
+  const email = el("email").value.trim();
+  const password = el("password").value;
+  if (!name) return status("Ism va familiyangizni kiriting.");
+  if (!email || password.length < 6)
+    return status("Email kiriting va parol kamida 6 belgidan iborat bo‘lsin.");
+  try {
+    status("Akkaunt yaratilmoqda...");
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", result.user.uid), {
+      name, email, points: 0, createdAt: serverTimestamp()
+    });
+    status("Akkaunt yaratildi! Xush kelibsiz.");
+  } catch (error) {
+    status("Xatolik: " + error.message);
+  }
+});
+
+el("loginBtn").addEventListener("click", async () => {
+  const email = el("email").value.trim();
+  const password = el("password").value;
+  try {
+    status("Tizimga kirilmoqda...");
+    await signInWithEmailAndPassword(auth, email, password);
+    status("Muvaffaqiyatli kirdingiz.");
+  } catch (error) {
+    status("Kirishda xatolik: " + error.message);
+  }
+});
+
+el("logoutBtn").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    status("Akkauntdan chiqdingiz.");
+  } catch (error) {
+    status("Xatolik: " + error.message);
+  }
+});
+
+onAuthStateChanged(auth, async user => {
+  el("authForms").hidden = !!user;
+  el("signedIn").hidden = !user;
+  if (!user) {
+    el("userName").textContent = "";
+    el("userEmail").textContent = "";
+    showPoints(0);
+    el("ecoPoints").textContent = "—";
+    el("ecoLevel").textContent = "—";
+    el("ecoNext").textContent = "Ballarni ko‘rish uchun akkauntga kiring.";
+    await loadLeaderboard();
+    return;
   }
 
-  function updatePoints(){
-    const points = getPoints();
-    let level = "Yangi ishtirokchi";
-    let next = 50;
-    let previous = 0;
-
-    if(points >= 200){
-      level = "Gold";
-      next = 200;
-      previous = 200;
-    }else if(points >= 100){
-      level = "Silver";
-      next = 200;
-      previous = 100;
-    }else if(points >= 50){
-      level = "Bronze";
-      next = 100;
-      previous = 50;
+  el("userEmail").textContent = user.email || "";
+  try {
+    const snap = await getDoc(doc(db, "users", user.uid));
+    if (!snap.exists()) {
+      status("Profil topilmadi. Administrator bazani tekshirishi kerak.");
+      el("userName").textContent = user.email || "Talaba";
+      return;
     }
-
-    pointsEl.textContent = points;
-    levelEl.textContent = level;
-
-    if(points >= 200){
-      progressEl.style.width = "100%";
-      nextEl.textContent = "🏆 Gold darajasiga yetdingiz!";
-    }else{
-      progressEl.style.width = Math.min(100, ((points - previous) / (next - previous)) * 100) + "%";
-      nextEl.textContent = "Keyingi bosqich: " + next + " ball";
-    }
+    const data = snap.data();
+    el("userName").textContent = data.name || "Talaba";
+    showPoints(Number(data.points) || 0);
+    status("Akkauntingiz Firebase bilan ulandi.");
+    await loadLeaderboard();
+  } catch (error) {
+    status("Profilni o‘qib bo‘lmadi: " + error.message);
   }
+});
 
-  rulesButton.addEventListener("click", function(){
-    rules.hidden = !rules.hidden;
-    rulesButton.setAttribute("aria-expanded", String(!rules.hidden));
-  });
-
-  document.getElementById("demoButton").addEventListener("click", function(){
-    localStorage.setItem(pointsKey, String(getPoints() + 10));
-    updatePoints();
-    messageEl.textContent = "Demo uchun 10 ball qo‘shildi. Bu haqiqiy tasdiqlangan ekologik faoliyat balli emas.";
-  });
-
-  document.getElementById("resetButton").addEventListener("click", function(){
-    if(confirm("Demo ballarini nolga tushirmoqchimisiz?")){
-      localStorage.removeItem(pointsKey);
-      updatePoints();
-      messageEl.textContent = "Demo ballari nolga tushirildi.";
+async function loadLeaderboard() {
+  const list = el("leaderboard");
+  list.innerHTML = "<li>Yuklanmoqda...</li>";
+  try {
+    const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10));
+    const result = await getDocs(q);
+    list.innerHTML = "";
+    if (result.empty) {
+      list.innerHTML = "<li>Hozircha foydalanuvchilar yo‘q.</li>";
+      return;
     }
-  });
+    let position = 1;
+    result.forEach(item => {
+      const data = item.data();
+      const li = document.createElement("li");
+      li.textContent = `${position}. ${data.name || "Talaba"} — ${Number(data.points) || 0} ball`;
+      list.appendChild(li);
+      position++;
+    });
+  } catch (error) {
+    list.innerHTML = "<li>Reytingni yuklab bo‘lmadi. Firestore Rules sozlamalarini tekshiring.</li>";
+  }
+}
 
-  updatePoints();
-})();
+el("refreshRanking").addEventListener("click", loadLeaderboard);
 </script>
 </body>
 </html>
