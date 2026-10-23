@@ -1,67 +1,23 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ECO-SIGNAL 2.0</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#f0f7f1;color:#183b2a}
-header{background:#126b45;color:white;padding:24px 18px;text-align:center}
-header h1{margin:0;font-size:30px}
-header p{margin-bottom:0}
-nav{background:#084d32;padding:13px;text-align:center}
-nav a{color:white;text-decoration:none;margin:8px;font-size:14px}
-main{max-width:700px;margin:auto;padding:18px}
-.card{background:white;border-radius:16px;padding:20px;margin:16px 0;box-shadow:0 3px 12px #0001}
-h2{color:#126b45}
-.btn{display:inline-block;background:#16804f;color:white;text-decoration:none;border-radius:9px;padding:14px 20px;font-size:17px;font-weight:bold}
-.badge{display:inline-block;background:#d9f4df;padding:8px 12px;border-radius:20px;margin:4px}
-.note{font-size:13px;color:#5c7163}
-footer{text-align:center;padding:24px;background:#084d32;color:white}
-</style>
-</head>
-<body>
-
-<header>
-<h1>🌱 ECO-SIGNAL 2.0</h1>
-<p>Toza kampus — yashil kelajak!</p>
-</header>
-
-<nav>
-<a href="#about">Loyiha</a>
-<a href="#report">Xabar berish</a>
-<a href="#points">Eco-ball</a>
-</nav>
-
-<main>
-
-<section class="card" id="about">
-<h2>🌍 Bizning maqsadimiz</h2>
-<p>ECO-SIGNAL 2.0 — universitetlarda ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish uchun yaratilayotgan yoshlar loyihasi.</p>
-<div class="badge">♻️ Chiqindilar</div>
-<div class="badge">💧 Suvni asrash</div>
-<div class="badge">🌳 Yashil hududlar</div>
-</section>
-
-<section class="card" id="report">
-<h2>📢 Ekologik muammo haqida xabar</h2>
-<p>Universitetda ekologik muammo ko‘rsangiz, quyidagi tugmani bosing. Google Forms shakli ochiladi. U yerda universitet nomi, muammo turi, joyi va tavsifini yozasiz.</p>
-<a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSftEO9twdRJ7mHkuIq1_Hwz1k33u_h1XsnfYSXxF3KTE7FoAg/viewform" target="_blank" rel="noopener">📝 Xabar berish</a>
-<p class="note">Xabarlar Google Forms orqali yig‘iladi. Bu hozircha prototip.</p>
-</section>
 
 <section class="card" id="points">
-<h2>⭐ Eco-ball</h2>
-<p>Eco-ball tizimi (ball va darajalar) hozircha ishlab chiqilmoqda. Hali ishlamaydi.</p>
+<h2>⭐ Mening Eco-ballim</h2>
+
+<p>Ekologik muammolar haqida xabar bering va tabiatni asrashda faol qatnashing!</p>
+
+<div class="badge">🌱 Ball: <strong id="ecoPoints">0</strong></div>
+<div class="badge">🏅 Daraja: <strong id="ecoLevel">Yangi ishtirokchi</strong></div>
+
+<p id="ecoMessage" class="note">
+Ball tizimi demo rejimida. Ballar hozircha faqat ushbu brauzerda saqlanadi.
+</p>
+
+<button class="btn" type="button" onclick="showEcoInfo()">
+Ball olish qoidalari
+</button>
+
+<div id="ecoRules" hidden>
+<p>🌿 Tasdiqlangan ekologik xabar — 10 ball.</p>
+<p>📸 Muammo hal etilishiga yordam — qo‘shimcha 20 ball.</p>
+<p class="note">Ballar hozircha avtomatik berilmaydi. Ular tasdiqlash tizimi ulangandan keyin hisoblanadi.</p>
+</div>
 </section>
-
-</main>
-
-<footer>
-<p>ECO-SIGNAL 2.0 © 2026</p>
-<p class="note" style="color:#cfe9d8">Prototip versiya</p>
-</footer>
-
-</body>
-</html>
