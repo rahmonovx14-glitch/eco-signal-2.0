@@ -11,15 +11,20 @@ body{margin:0;font-family:Arial,sans-serif;background:#f0f7f1;color:#183b2a}
 header,footer{background:#126b45;color:white;text-align:center;padding:22px 15px}
 nav{background:#084d32;padding:12px;text-align:center}
 nav a{color:white;margin:7px;text-decoration:none;display:inline-block}
-main{max-width:700px;margin:auto;padding:15px}
+main{max-width:760px;margin:auto;padding:15px}
 .card{background:white;border-radius:15px;padding:19px;margin:15px 0;box-shadow:0 3px 12px #0001}
 h2{color:#126b45}
-input{display:block;width:100%;padding:12px;margin:9px 0;border:1px solid #b9cbbd;border-radius:8px;font-size:16px}
+input,select,textarea{display:block;width:100%;padding:12px;margin:9px 0;border:1px solid #b9cbbd;border-radius:8px;font-size:16px;background:white;color:#183b2a}
+textarea{min-height:100px;resize:vertical}
 .btn{background:#16804f;color:white;border:0;border-radius:9px;padding:12px 15px;margin:5px 3px;cursor:pointer;font-size:15px}
+.btn.secondary{background:#52675a}
+.btn.danger{background:#a83232}
 .badge{display:inline-block;background:#d9f4df;padding:9px 12px;border-radius:20px;margin:4px}
 .note{font-size:13px;color:#5c7163;overflow-wrap:anywhere}
 li{padding:7px}
+.report{border:1px solid #d4e4d7;padding:12px;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}
 [hidden]{display:none!important}
+.status{padding:10px;background:#edf6ee;border-radius:8px;overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -33,52 +38,82 @@ li{padding:7px}
 <a href="#account">Akkaunt</a>
 <a href="#points">Eco-ball</a>
 <a href="#ranking">Reyting</a>
+<a href="#admin" id="adminNav" hidden>Admin</a>
 </nav>
 
 <main>
 <section class="card" id="about">
 <h2>🌍 Bizning maqsadimiz</h2>
 <p>ECO-SIGNAL 2.0 — ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish loyihasi.</p>
-<div class="badge">♻️ Chiqindilar</div>
-<div class="badge">💧 Suvni asrash</div>
-<div class="badge">🌳 Yashil hududlar</div>
+<span class="badge">♻️ Chiqindilar</span>
+<span class="badge">💧 Suvni asrash</span>
+<span class="badge">🌳 Yashil hududlar</span>
 </section>
 
 <section class="card" id="report">
 <h2>📢 Ekologik muammo haqida xabar</h2>
-<p>Ekologik muammo haqida xabar yuboring.</p>
-<a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSftEO9twdRJ7mHkuIq1_Hwz1k33u_h1XsnfYSXxF3KTE7FoAg/viewform" target="_blank" rel="noopener">📝 Xabar berish</a>
-<p class="note">Xabar tekshirilgandan keyin ball beriladi.</p>
+<p>Xabar yuborish uchun avval akkauntingizga kiring. Xabar administrator tekshiruviga yuboriladi.</p>
+<form id="reportForm">
+<label for="category">Muammo turi</label>
+<select id="category" required>
+<option value="">Tanlang</option>
+<option>Chiqindilar</option>
+<option>Suv isrofi</option>
+<option>Yashil hududga zarar</option>
+<option>Havo ifloslanishi</option>
+<option>Boshqa</option>
+</select>
+<label for="location">Joylashuv</label>
+<input id="location" maxlength="180" placeholder="Muammo qayerda?" required>
+<label for="description">Muammo tavsifi</label>
+<textarea id="description" maxlength="1500" placeholder="Nima bo‘lganini yozing..." required></textarea>
+<label for="imageUrl">Rasm havolasi (ixtiyoriy)</label>
+<input id="imageUrl" type="url" placeholder="https://...">
+<button class="btn" type="submit" id="sendReportBtn">📨 Xabarni yuborish</button>
+</form>
+<p id="reportStatus" class="status">Xabar yuborish uchun akkauntga kiring.</p>
+<h3>📋 Mening xabarlarim</h3>
+<button class="btn secondary" id="refreshMyReports" type="button">Xabarlarimni yangilash</button>
+<div id="myReports">Akkauntga kirgandan keyin xabarlaringiz ko‘rinadi.</div>
 </section>
 
 <section class="card" id="account">
 <h2>👤 Talaba akkaunti</h2>
 <div id="authForms">
-<input id="fullName" placeholder="Ism va familiya (ro‘yxatdan o‘tishda)" autocomplete="name">
+<input id="fullName" placeholder="Ism va familiya" autocomplete="name">
 <input id="email" type="email" placeholder="Email manzilingiz" autocomplete="email">
 <input id="password" type="password" placeholder="Parol (kamida 6 belgi)" autocomplete="current-password">
-<button class="btn" id="registerBtn">Ro‘yxatdan o‘tish</button>
-<button class="btn" id="loginBtn">Kirish</button>
+<button class="btn" id="registerBtn" type="button">Ro‘yxatdan o‘tish</button>
+<button class="btn" id="loginBtn" type="button">Kirish</button>
 </div>
 <div id="signedIn" hidden>
 <p>Akkaunt: <strong id="userName"></strong></p>
 <p id="userEmail"></p>
-<button class="btn" id="logoutBtn">Chiqish</button>
+<p id="roleInfo" class="note"></p>
+<button class="btn" id="logoutBtn" type="button">Chiqish</button>
 </div>
-<p id="status" class="note" role="status">Firebase bilan ulanish kutilmoqda...</p>
+<p id="status" class="status">Firebase bilan ulanish kutilmoqda...</p>
 </section>
 
 <section class="card" id="points">
 <h2>⭐ Mening Eco-ballim</h2>
-<div class="badge">🌱 Ball: <strong id="ecoPoints">—</strong></div>
-<div class="badge">🏅 Daraja: <strong id="ecoLevel">—</strong></div>
+<span class="badge">🌱 Ball: <strong id="ecoPoints">—</strong></span>
+<span class="badge">🏅 Daraja: <strong id="ecoLevel">—</strong></span>
 <p id="ecoNext">Ballarni ko‘rish uchun akkauntga kiring.</p>
 </section>
 
 <section class="card" id="ranking">
 <h2>🏆 Talabalar reytingi</h2>
-<button class="btn" id="refreshRanking">Reytingni yangilash</button>
+<button class="btn" id="refreshRanking" type="button">Reytingni yangilash</button>
 <ol id="leaderboard"><li>Reyting yuklanmoqda...</li></ol>
+</section>
+
+<section class="card" id="admin" hidden>
+<h2>🛡️ Administrator paneli</h2>
+<p class="note">Faqat maxsus administrator huquqi berilgan akkaunt kira oladi.</p>
+<button class="btn" id="refreshAdmin" type="button">Kutilayotgan xabarlarni yangilash</button>
+<div id="adminReports"></div>
+<p id="adminStatus" class="status"></p>
 </section>
 </main>
 
@@ -94,9 +129,10 @@ import {
  signInWithEmailAndPassword,signOut,onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
- getFirestore,doc,getDoc,setDoc,collection,
- getDocs,query,orderBy,limit,serverTimestamp
+ getFirestore,doc,getDoc,setDoc,addDoc,collection,
+ getDocs,query,where,orderBy,limit,serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import {getFunctions,httpsCallable} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
 
 const firebaseConfig = {
  apiKey: "AIzaSyBb-EV5Ws-uojOujnQZgPO2cImBzUjdFaw",
@@ -110,114 +146,226 @@ const firebaseConfig = {
 
 const $ = id => document.getElementById(id);
 const status = msg => $("status").textContent = msg;
+let auth,db,functions,currentUser=null,isAdmin=false;
 
-let auth,db;
 try {
- const app = initializeApp(firebaseConfig);
- auth = getAuth(app);
- db = getFirestore(app);
- status("Firebase ishga tushdi. Akkauntni tekshirish mumkin.");
+ const app=initializeApp(firebaseConfig);
+ auth=getAuth(app);
+ db=getFirestore(app);
+ functions=getFunctions(app);
+ status("Firebase ishga tushdi.");
 } catch(e) {
- status("Firebase sozlamasi xatosi: " + e.message);
+ status("Firebase xatosi: "+e.message);
 }
 
-function level(points) {
- if(points>=200)return "Gold";
- if(points>=100)return "Silver";
- if(points>=50)return "Bronze";
+function level(p) {
+ if(p>=200)return "Gold";
+ if(p>=100)return "Silver";
+ if(p>=50)return "Bronze";
  return "Yangi ishtirokchi";
 }
-function showPoints(points) {
- $("ecoPoints").textContent=points;
- $("ecoLevel").textContent=level(points);
- const next=points<50?50:points<100?100:points<200?200:null;
- $("ecoNext").textContent=next?`Keyingi daraja: ${next} ball`:"Gold darajasiga yetdingiz!";
+function showPoints(p) {
+ $("ecoPoints").textContent=p;
+ $("ecoLevel").textContent=level(p);
+ const n=p<50?50:p<100?100:p<200?200:null;
+ $("ecoNext").textContent=n?`Keyingi daraja: ${n} ball`:"Gold darajasiga yetdingiz!";
 }
 
 $("registerBtn").onclick=async()=>{
- if(!auth||!db)return status("Firebase ishga tushmadi. Config va API keyni tekshiring.");
  const name=$("fullName").value.trim();
  const email=$("email").value.trim();
  const password=$("password").value;
  if(!name)return status("Ism va familiyangizni kiriting.");
  if(!email||password.length<6)return status("Email va kamida 6 belgili parol kiriting.");
- try{
+ try {
   status("Akkaunt yaratilmoqda...");
-  const result=await createUserWithEmailAndPassword(auth,email,password);
-  await setDoc(doc(db,"users",result.user.uid),{
-   name:name,points:0,createdAt:serverTimestamp()
+  const r=await createUserWithEmailAndPassword(auth,email,password);
+  await setDoc(doc(db,"users",r.user.uid),{
+   name,points:0,createdAt:serverTimestamp()
   });
-  status("Akkaunt muvaffaqiyatli yaratildi!");
- }catch(e){status("Ro‘yxatdan o‘tish xatosi: "+e.code+" — "+e.message);}
+  status("Akkaunt yaratildi!");
+ } catch(e) {
+  status("Ro‘yxatdan o‘tish xatosi: "+e.code+" — "+e.message);
+ }
 };
 
 $("loginBtn").onclick=async()=>{
- if(!auth)return status("Firebase ishga tushmadi. Configni tekshiring.");
  const email=$("email").value.trim();
  const password=$("password").value;
  if(!email||!password)return status("Email va parolni kiriting.");
- try{
+ try {
   status("Tizimga kirilmoqda...");
   await signInWithEmailAndPassword(auth,email,password);
   status("Kirish muvaffaqiyatli!");
- }catch(e){status("Kirish xatosi: "+e.code+" — "+e.message);}
+ } catch(e) {
+  status("Kirish xatosi: "+e.code+" — "+e.message);
+ }
 };
 
 $("logoutBtn").onclick=async()=>{
- try{await signOut(auth);status("Akkauntdan chiqdingiz.");}
- catch(e){status("Chiqish xatosi: "+e.message);}
+ try {
+  await signOut(auth);
+  status("Akkauntdan chiqdingiz.");
+ } catch(e) {
+  status("Chiqish xatosi: "+e.message);
+ }
 };
 
-async function loadLeaderboard(){
+async function loadLeaderboard() {
  const list=$("leaderboard");
  list.innerHTML="<li>Yuklanmoqda...</li>";
- if(!db){list.innerHTML="<li>Firebase ulanmagan.</li>";return;}
- try{
+ try {
   const q=query(collection(db,"users"),orderBy("points","desc"),limit(10));
-  const result=await getDocs(q);
+  const res=await getDocs(q);
   list.innerHTML="";
-  if(result.empty){list.innerHTML="<li>Hozircha foydalanuvchilar yo‘q.</li>";return;}
+  if(res.empty){list.innerHTML="<li>Foydalanuvchilar yo‘q.</li>";return;}
   let i=1;
-  result.forEach(item=>{
-   const d=item.data(),li=document.createElement("li");
+  res.forEach(s=>{
+   const d=s.data(),li=document.createElement("li");
    li.textContent=`${i++}. ${d.name||"Talaba"} — ${Number(d.points)||0} ball`;
    list.appendChild(li);
   });
- }catch(e){list.innerHTML="<li>Reyting xatosi: "+e.code+"</li>";}
+ } catch(e) {
+  list.innerHTML="<li>Reyting xatosi: "+e.code+"</li>";
+ }
 }
 $("refreshRanking").onclick=loadLeaderboard;
 
-if(auth&&db){
- onAuthStateChanged(auth,async user=>{
-  $("authForms").hidden=!!user;
-  $("signedIn").hidden=!user;
-  if(!user){
-   $("userName").textContent="";
-   $("userEmail").textContent="";
-   $("ecoPoints").textContent="—";
-   $("ecoLevel").textContent="—";
-   $("ecoNext").textContent="Ballarni ko‘rish uchun akkauntga kiring.";
-   await loadLeaderboard();
-   return;
-  }
-  $("userEmail").textContent=user.email||"";
-  try{
-   const ref=doc(db,"users",user.uid);
-   let snap=await getDoc(ref);
-   if(!snap.exists()){
-    const name=$("fullName").value.trim()||
-      (user.email?user.email.split("@")[0]:"Talaba");
-    await setDoc(ref,{name,points:0,createdAt:serverTimestamp()});
-    snap=await getDoc(ref);
-   }
-   const d=snap.data();
-   $("userName").textContent=d.name||"Talaba";
-   showPoints(Number(d.points)||0);
-   status("Akkauntingiz Firebase bilan ulandi.");
-  }catch(e){status("Profil xatosi: "+e.code+" — "+e.message);}
-  await loadLeaderboard();
- });
+$("reportForm").onsubmit=async ev=>{
+ ev.preventDefault();
+ if(!currentUser){$("reportStatus").textContent="Avval akkauntingizga kiring.";return;}
+ const category=$("category").value;
+ const location=$("location").value.trim();
+ const description=$("description").value.trim();
+ const imageUrl=$("imageUrl").value.trim();
+ if(!category||!location||!description){
+  $("reportStatus").textContent="Majburiy maydonlarni to‘ldiring.";return;
+ }
+ try {
+  $("sendReportBtn").disabled=true;
+  $("reportStatus").textContent="Xabar yuborilmoqda...";
+  const profile=await getDoc(doc(db,"users",currentUser.uid));
+  await addDoc(collection(db,"reports"),{
+   userId:currentUser.uid,
+   userName:profile.exists()?(profile.data().name||"Talaba"):"Talaba",
+   category,location,description,imageUrl,
+   status:"pending",createdAt:serverTimestamp()
+  });
+  $("reportForm").reset();
+  $("reportStatus").textContent="Xabar yuborildi. Administrator tekshiruvini kuting.";
+  await loadMyReports();
+ } catch(e) {
+  $("reportStatus").textContent="Xabar xatosi: "+e.code+" — "+e.message;
+ } finally {
+  $("sendReportBtn").disabled=false;
+ }
+};
+
+async function loadMyReports() {
+ const box=$("myReports");
+ if(!currentUser){box.textContent="Xabarlaringizni ko‘rish uchun akkauntga kiring.";return;}
+ box.textContent="Yuklanmoqda...";
+ try {
+  const q=query(collection(db,"reports"),where("userId","==",currentUser.uid),orderBy("createdAt","desc"),limit(20));
+  const res=await getDocs(q);
+  box.innerHTML="";
+  if(res.empty){box.textContent="Hali xabar yubormagansiz.";return;}
+  res.forEach(s=>{
+   const d=s.data(),el=document.createElement("div");
+   el.className="report";
+   const title=document.createElement("strong");
+   title.textContent=`${d.category||"Xabar"} — ${d.status==="approved"?"Tasdiqlandi":d.status==="rejected"?"Rad etildi":"Kutilmoqda"}`;
+   const p=document.createElement("p");
+   p.textContent=`${d.location||""}: ${d.description||""}`;
+   el.append(title,p);box.appendChild(el);
+  });
+ } catch(e) {
+  box.textContent="Xabarlar xatosi: "+e.code+" — "+e.message;
+ }
 }
+$("refreshMyReports").onclick=loadMyReports;
+
+async function loadAdminReports() {
+ const box=$("adminReports");
+ if(!isAdmin){box.textContent="Administrator huquqi yo‘q.";return;}
+ box.textContent="Yuklanmoqda...";
+ try {
+  const q=query(collection(db,"reports"),where("status","==","pending"),orderBy("createdAt","asc"),limit(50));
+  const res=await getDocs(q);
+  box.innerHTML="";
+  if(res.empty){box.textContent="Kutilayotgan xabarlar yo‘q.";return;}
+  res.forEach(s=>{
+   const d=s.data(),el=document.createElement("div");
+   el.className="report";
+   const h=document.createElement("h3");h.textContent=d.category||"Xabar";
+   const p=document.createElement("p");p.textContent=`Talaba: ${d.userName||"Talaba"} | Joy: ${d.location||"—"}`;
+   const desc=document.createElement("p");desc.textContent=d.description||"";
+   el.append(h,p,desc);
+   if(d.imageUrl){
+    const a=document.createElement("a");a.href=d.imageUrl;a.target="_blank";a.rel="noopener";a.textContent="Rasmni ochish";el.appendChild(a);
+   }
+   for(const [label,decision,cls] of [["Tasdiqlash","approved",""],["Rad etish","rejected","danger"]]){
+    const b=document.createElement("button");b.className="btn "+cls;b.textContent=label;
+    b.onclick=async()=>{
+     if(!confirm(label+"?"))return;
+     try {
+      $("adminStatus").textContent="Qaror yuborilmoqda...";
+      const review=httpsCallable(functions,"reviewReport");
+      await review({reportId:s.id,decision});
+      $("adminStatus").textContent="Qaror saqlandi.";
+      await loadAdminReports();await loadLeaderboard();
+     } catch(e) {
+      $("adminStatus").textContent="Xatolik: "+e.code+" — "+e.message;
+     }
+    };
+    el.appendChild(b);
+   }
+   box.appendChild(el);
+  });
+ } catch(e) {
+  box.textContent="Admin xatosi: "+e.code+" — "+e.message;
+ }
+}
+$("refreshAdmin").onclick=loadAdminReports;
+
+onAuthStateChanged(auth,async user=>{
+ currentUser=user;
+ $("authForms").hidden=!!user;
+ $("signedIn").hidden=!user;
+ $("admin").hidden=true;
+ $("adminNav").hidden=true;
+ isAdmin=false;
+ if(!user){
+  $("userName").textContent="";
+  $("userEmail").textContent="";
+  $("roleInfo").textContent="";
+  $("ecoPoints").textContent="—";
+  $("ecoLevel").textContent="—";
+  $("ecoNext").textContent="Ballarni ko‘rish uchun akkauntga kiring.";
+  await loadMyReports();await loadLeaderboard();return;
+ }
+ $("userEmail").textContent=user.email||"";
+ try {
+  const ref=doc(db,"users",user.uid);
+  let snap=await getDoc(ref);
+  if(!snap.exists()){
+   const name=$("fullName").value.trim()||(user.email?user.email.split("@")[0]:"Talaba");
+   await setDoc(ref,{name,points:0,createdAt:serverTimestamp()});
+   snap=await getDoc(ref);
+  }
+  const d=snap.data();
+  $("userName").textContent=d.name||"Talaba";
+  showPoints(Number(d.points)||0);
+  const token=await user.getIdTokenResult(true);
+  isAdmin=token.claims.isAdmin===true;
+  $("roleInfo").textContent=isAdmin?"Administrator huquqi faol.":"Talaba akkaunti.";
+  if(isAdmin){$("admin").hidden=false;$("adminNav").hidden=false;await loadAdminReports();}
+  status("Akkauntingiz Firebase bilan ulandi.");
+ } catch(e) {
+  status("Profil xatosi: "+e.code+" — "+e.message);
+ }
+ await loadMyReports();await loadLeaderboard();
+});
 </script>
 </body>
 </html>
