@@ -19,6 +19,7 @@ textarea{min-height:100px;resize:vertical}
 .btn{background:#16804f;color:white;border:0;border-radius:9px;padding:12px 15px;margin:5px 3px;cursor:pointer;font-size:15px}
 .btn.secondary{background:#52675a}
 .btn.danger{background:#a83232}
+.btn:disabled{opacity:.6}
 .badge{display:inline-block;background:#d9f4df;padding:9px 12px;border-radius:20px;margin:4px}
 .note{font-size:13px;color:#5c7163;overflow-wrap:anywhere}
 li{padding:7px}
@@ -164,6 +165,7 @@ function level(p) {
  if(p>=50)return "Bronze";
  return "Yangi ishtirokchi";
 }
+
 function showPoints(p) {
  $("ecoPoints").textContent=p;
  $("ecoLevel").textContent=level(p);
@@ -261,16 +263,29 @@ $("reportForm").onsubmit=async ev=>{
  }
 };
 
+// TUZATILGAN: Mening xabarlarim so‘rovida orderBy yo‘q.
 async function loadMyReports() {
  const box=$("myReports");
- if(!currentUser){box.textContent="Xabarlaringizni ko‘rish uchun akkauntga kiring.";return;}
+ if(!currentUser){
+  box.textContent="Xabarlaringizni ko‘rish uchun akkauntga kiring.";
+  return;
+ }
  box.textContent="Yuklanmoqda...";
  try {
-  const q=query(collection(db,"reports"),where("userId","==",currentUser.uid),orderBy("createdAt","desc"),limit(20));
+  const q=query(
+   collection(db,"reports"),
+   where("userId","==",currentUser.uid),
+   limit(100)
+  );
   const res=await getDocs(q);
   box.innerHTML="";
   if(res.empty){box.textContent="Hali xabar yubormagansiz.";return;}
-  res.forEach(s=>{
+  const reports=res.docs.sort((a,b)=>{
+   const da=a.data().createdAt?.toMillis?.()||0;
+   const dbb=b.data().createdAt?.toMillis?.()||0;
+   return dbb-da;
+  });
+  reports.forEach(s=>{
    const d=s.data(),el=document.createElement("div");
    el.className="report";
    const title=document.createElement("strong");
