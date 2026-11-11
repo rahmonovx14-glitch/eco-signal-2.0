@@ -85,7 +85,19 @@ function showPoints(p){$("ecoPoints").textContent=p;$("ecoLevel").textContent=le
 
 $("registerBtn").onclick=async()=>{if(!auth||!db)return status("Firebase ishga tushmadi.");const name=$("fullName").value.trim(),email=$("email").value.trim(),password=$("password").value;if(!name)return status("Ism va familiyangizni kiriting.");if(!email||password.length<6)return status("Email va kamida 6 belgili parol kiriting.");try{status("Akkaunt yaratilmoqda...");const r=await createUserWithEmailAndPassword(auth,email,password);await setDoc(doc(db,"users",r.user.uid),{name,points:0,createdAt:serverTimestamp()});status("Akkaunt muvaffaqiyatli yaratildi!");}catch(e){status("Ro‘yxatdan o‘tish xatosi: "+e.code+" — "+e.message);}};
 $("loginBtn").onclick=async()=>{if(!auth)return status("Firebase ishga tushmadi.");const email=$("email").value.trim(),password=$("password").value;if(!email||!password)return status("Email va parolni kiriting.");try{status("Tizimga kirilmoqda...");await signInWithEmailAndPassword(auth,email,password);status("Kirish muvaffaqiyatli!");}catch(e){status("Kirish xatosi: "+e.code+" — "+e.message);}};
-$("logoutBtn").onclick=async()=>{try{await signOut(auth);status("Akkauntdan chiqdingiz.");}catch(e){status("Chiqish xatosi: "+e.message);}};
+$("resetPasswordBtn").onclick=async()=>{
+  const email=$("email").value.trim();
+  if(!email){status("Avval emailingizni kiriting.");return;}
+  try{
+    await sendPasswordResetEmail(auth,email);
+    status("Parolni tiklash havolasi emailingizga yuborildi. Pochtangizni tekshiring.");
+  }catch(e){status("Xatolik: "+e.code);}
+};
+
+$("logoutBtn").onclick=async()=>{
+  try{await signOut(auth);status("Akkauntdan chiqdingiz.");}
+  catch(e){status("Chiqish xatosi: "+e.message);}
+};
 
 async function loadLeaderboard(){const list=$("leaderboard");list.innerHTML="<li>Yuklanmoqda...</li>";try{const q=query(collection(db,"users"),orderBy("points","desc"),limit(10)),res=await getDocs(q);list.innerHTML="";if(res.empty){list.innerHTML="<li>Hozircha foydalanuvchilar yo‘q.</li>";return;}let i=1;res.forEach(s=>{const d=s.data(),li=document.createElement("li");li.textContent=`${i++}. ${d.name||"Talaba"} — ${Number(d.points)||0} ball`;list.appendChild(li);});}catch(e){list.innerHTML="<li>Reyting xatosi: "+e.code+"</li>";}}
 $("refreshRanking").onclick=loadLeaderboard;
