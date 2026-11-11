@@ -1,183 +1,119 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ECO-SIGNAL 2.0</title>
-<style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f0f7f1;color:#183b2a}
-header,footer{background:#126b45;color:white;text-align:center;padding:22px 15px}nav{background:#084d32;padding:12px;text-align:center}
-nav a{color:white;margin:7px;text-decoration:none;display:inline-block}main{max-width:760px;margin:auto;padding:15px}
-.card{background:white;border-radius:15px;padding:19px;margin:15px 0;box-shadow:0 3px 12px #0001}h2{color:#126b45}
-input,select,textarea{display:block;width:100%;padding:12px;margin:9px 0;border:1px solid #b9cbbd;border-radius:8px;font-size:16px;background:white;color:#183b2a}
-textarea{min-height:100px;resize:vertical}.btn{background:#16804f;color:white;border:0;border-radius:9px;padding:12px 15px;margin:5px 3px;cursor:pointer;font-size:15px}
-.btn.secondary{background:#52675a}.btn.danger{background:#a83232}.badge{display:inline-block;background:#d9f4df;padding:9px 12px;border-radius:20px;margin:4px}
-.note{font-size:13px;color:#5c7163;overflow-wrap:anywhere}li{padding:7px}.report{border:1px solid #d4e4d7;padding:12px;border-radius:10px;margin:10px 0;overflow-wrap:anywhere}
-[hidden]{display:none!important}.status{padding:10px;background:#edf6ee;border-radius:8px;overflow-wrap:anywhere}
-</style>
-</head>
-<body>
-<header><h1>🌱 ECO-SIGNAL 2.0</h1><p>Toza kampus — yashil kelajak!</p></header>
-<nav><a href="#about">Loyiha</a><a href="#report">Xabar berish</a><a href="#account">Akkaunt</a><a href="#points">Eco-ball</a><a href="#ranking">Reyting</a><a href="#admin" id="adminNav" hidden>Admin</a></nav>
-<main>
-<section class="card" id="about"><h2>🌍 Bizning maqsadimiz</h2><p>ECO-SIGNAL 2.0 — ekologik muammolar haqida xabar berish va talabalarni tabiatni asrashga jalb qilish loyihasi.</p><span class="badge">♻️ Chiqindilar</span><span class="badge">💧 Suvni asrash</span><span class="badge">🌳 Yashil hududlar</span></section>
 
-<section class="card" id="report"><h2>📢 Ekologik muammo haqida xabar</h2>
-<p>Xabar yuborish uchun avval akkauntingizga kiring. Xabar administrator tekshiruviga yuboriladi.</p>
-<form id="reportForm">
-<label for="category">Muammo turi</label>
-<select id="category" required><option value="">Tanlang</option><option>Chiqindilar</option><option>Suv isrofi</option><option>Yashil hududga zarar</option><option>Havo ifloslanishi</option><option>Boshqa</option></select>
-<label for="location">Joylashuv (masalan, bino yoki hudud)</label><input id="location" maxlength="180" placeholder="Muammo qayerda?" required>
-<label for="description">Muammo tavsifi</label><textarea id="description" maxlength="1500" placeholder="Nima bo‘lganini yozing..." required></textarea>
-<label for="reportImages">📸 Rasmlar (5 tagacha, har biri 8 MB gacha)</label>
-<input id="reportImages" type="file" accept="image/*" multiple>
-<p class="note" id="imageInfo">Hozircha rasm tanlanmagan.</p>
-<label for="reportVideo">🎥 Video (1 ta, 50 MB gacha)</label>
-<input id="reportVideo" type="file" accept="video/*">
-<p class="note" id="videoInfo">Hozircha video tanlanmagan.</p>
-<button class="btn" type="submit" id="sendReportBtn">📨 Xabarni yuborish</button>
-</form><p id="reportStatus" class="status" role="status">Xabar yuborish uchun akkauntga kiring.</p>
-<h3>📋 Mening xabarlarim</h3><button class="btn secondary" id="refreshMyReports" type="button">Xabarlarimni yangilash</button><div id="myReports"><p class="note">Akkauntga kirgandan keyin xabarlaringiz ko‘rinadi.</p></div>
-</section>
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { createRemoteJWKSet, jwtVerify } from "npm:jose@5";
 
-<section class="card" id="account"><h2>👤 Talaba akkaunti</h2>
-<div id="authForms">
-  <input id="fullName" placeholder="Ism va familiya (ro‘yxatdan o‘tishda)" autocomplete="name">
-  <input id="email" type="email" placeholder="Email manzilingiz" autocomplete="email">
-  <input id="password" type="password" placeholder="Parol (kamida 6 belgi)" autocomplete="current-password">
-  <button class="btn" id="registerBtn" type="button">Ro‘yxatdan o‘tish</button>
-  <button class="btn" id="loginBtn" type="button">Kirish</button>
-  <button class="btn" id="resetPasswordBtn" type="button">Parolni unutdingizmi?</button>
-</div>
-<div id="signedIn" hidden><p>Akkaunt: <strong id="userName"></strong></p><p id="userEmail"></p><p id="roleInfo" class="note"></p><button class="btn" id="logoutBtn" type="button">Chiqish</button></div>
-<p id="status" class="status" role="status">Firebase bilan ulanish kutilmoqda...</p></section>
+const projectId = Deno.env.get("FIREBASE_PROJECT_ID")!;
 
-<section class="card" id="points"><h2>⭐ Mening Eco-ballim</h2><span class="badge">🌱 Ball: <strong id="ecoPoints">—</strong></span><span class="badge">🏅 Daraja: <strong id="ecoLevel">—</strong></span><p id="ecoNext">Ballarni ko‘rish uchun akkauntga kiring.</p></section>
-<section class="card" id="ranking"><h2>🏆 Talabalar reytingi</h2><button class="btn" id="refreshRanking" type="button">Reytingni yangilash</button><ol id="leaderboard"><li>Reyting yuklanmoqda...</li></ol></section>
+const JWKS = createRemoteJWKSet(
+  new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com")
+);
 
-<section class="card" id="admin" hidden><h2>🛡️ Administrator paneli</h2><p class="note">Bu panel faqat Firebase Authentication tokenida isAdmin=true bo‘lgan administratorlar uchun ishlaydi.</p><button class="btn" id="refreshAdmin" type="button">Kutilayotgan xabarlarni yangilash</button><div id="adminReports"><p class="note">Admin huquqi tekshirilmoqda...</p></div><p id="adminStatus" class="status"></p></section>
-</main>
-<footer><p>ECO-SIGNAL 2.0 © 2026</p><p>Yashil kelajak — bizning qo‘limizda!</p></footer>
-
-<script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import {getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,sendPasswordResetEmail,signOut,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import {getFirestore,doc,getDoc,setDoc,addDoc,collection,getDocs,query,where,orderBy,limit,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import {getStorage,ref as storageRef,uploadBytes,getDownloadURL,deleteObject} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js";
-import {getFunctions,httpsCallable} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
-
-const firebaseConfig = {
- apiKey: "AIzaSyBb-EV5Ws-uojOujnQZgPO2cImBzUjdFaw",
- authDomain: "eco-signal-2.firebaseapp.com",
- projectId: "eco-signal-2",
- storageBucket: "eco-signal-2.firebasestorage.app",
- messagingSenderId: "759381647993",
- appId: "1:759381647993:web:41ada6895b5218ca0aaaa8",
- measurementId: "G-D610ZXZS5D"
-};
-const $=id=>document.getElementById(id), status=msg=>$("status").textContent=msg;
-let auth,db,functions,storage,currentUser=null,isAdmin=false;
-try {const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);functions=getFunctions(app);storage=getStorage(app);status("Firebase ishga tushdi.");}
-catch(e){status("Firebase sozlamasi xatosi: "+e.message);}
-
-function level(p){if(p>=200)return "Gold";if(p>=100)return "Silver";if(p>=50)return "Bronze";return "Yangi ishtirokchi";}
-function showPoints(p){$("ecoPoints").textContent=p;$("ecoLevel").textContent=level(p);const n=p<50?50:p<100?100:p<200?200:null;$("ecoNext").textContent=n?`Keyingi daraja: ${n} ball`:"Gold darajasiga yetdingiz!";}
-
-$("registerBtn").onclick=async()=>{if(!auth||!db)return status("Firebase ishga tushmadi.");const name=$("fullName").value.trim(),email=$("email").value.trim(),password=$("password").value;if(!name)return status("Ism va familiyangizni kiriting.");if(!email||password.length<6)return status("Email va kamida 6 belgili parol kiriting.");try{status("Akkaunt yaratilmoqda...");const r=await createUserWithEmailAndPassword(auth,email,password);await setDoc(doc(db,"users",r.user.uid),{name,points:0,createdAt:serverTimestamp()});status("Akkaunt muvaffaqiyatli yaratildi!");}catch(e){status("Ro‘yxatdan o‘tish xatosi: "+e.code+" — "+e.message);}};
-$("loginBtn").onclick=async()=>{if(!auth)return status("Firebase ishga tushmadi.");const email=$("email").value.trim(),password=$("password").value;if(!email||!password)return status("Email va parolni kiriting.");try{status("Tizimga kirilmoqda...");await signInWithEmailAndPassword(auth,email,password);status("Kirish muvaffaqiyatli!");}catch(e){status("Kirish xatosi: "+e.code+" — "+e.message);}};
-$("resetPasswordBtn").onclick=async()=>{
-  const email=$("email").value.trim();
-  if(!email){status("Avval emailingizni kiriting.");return;}
-  try{
-    await sendPasswordResetEmail(auth,email);
-    status("Parolni tiklash havolasi emailingizga yuborildi. Pochtangizni tekshiring.");
-  }catch(e){status("Xatolik: "+e.code);}
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS"
 };
 
-$("logoutBtn").onclick=async()=>{
-  try{await signOut(auth);status("Akkauntdan chiqdingiz.");}
-  catch(e){status("Chiqish xatosi: "+e.message);}
-};
-
-async function loadLeaderboard(){const list=$("leaderboard");list.innerHTML="<li>Yuklanmoqda...</li>";try{const q=query(collection(db,"users"),orderBy("points","desc"),limit(10)),res=await getDocs(q);list.innerHTML="";if(res.empty){list.innerHTML="<li>Hozircha foydalanuvchilar yo‘q.</li>";return;}let i=1;res.forEach(s=>{const d=s.data(),li=document.createElement("li");li.textContent=`${i++}. ${d.name||"Talaba"} — ${Number(d.points)||0} ball`;list.appendChild(li);});}catch(e){list.innerHTML="<li>Reyting xatosi: "+e.code+"</li>";}}
-$("refreshRanking").onclick=loadLeaderboard;
-
-const MAX_IMAGES=5, MAX_IMAGE_BYTES=8*1024*1024, MAX_VIDEO_BYTES=50*1024*1024;
-const imageInput=$("reportImages"), videoInput=$("reportVideo");
-imageInput.addEventListener("change",()=>{
- const files=Array.from(imageInput.files||[]);
- if(files.length>MAX_IMAGES){imageInput.value="";$("imageInfo").textContent="Ko‘pi bilan 5 ta rasm tanlang.";return;}
- const bad=files.find(f=>!f.type.startsWith("image/")||f.size>MAX_IMAGE_BYTES);
- if(bad){imageInput.value="";$("imageInfo").textContent="Rasmlar image formatida va har biri 8 MB dan kichik bo‘lishi kerak.";return;}
- $("imageInfo").textContent=files.length?`${files.length} ta rasm tanlandi.`:"Hozircha rasm tanlanmagan.";
-});
-videoInput.addEventListener("change",()=>{
- const f=videoInput.files?.[0];
- if(f&&(!f.type.startsWith("video/")||f.size>MAX_VIDEO_BYTES)){videoInput.value="";$("videoInfo").textContent="Video formatida bitta fayl tanlang, hajmi 50 MB dan oshmasin.";return;}
- $("videoInfo").textContent=f?`Video tanlandi: ${f.name}`:"Hozircha video tanlanmagan.";
-});
-
-async function uploadReportFile(file,uid,reportId,kind,index){
- const ext=(file.name.split(".").pop()||"file").toLowerCase().replace(/[^a-z0-9]/g,"").slice(0,8)||"file";
- const path=`reports/${uid}/${reportId}/${kind}_${index}_${crypto.randomUUID()}.${ext}`;
- const fileRef=storageRef(storage,path);
- await uploadBytes(fileRef,file,{contentType:file.type,customMetadata:{ownerUid:uid,reportId}});
- const url=await getDownloadURL(fileRef);
- return {type:kind,url,path,name:file.name,contentType:file.type,size:file.size};
+function response(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" }
+  });
 }
 
-$("reportForm").onsubmit=async ev=>{
- ev.preventDefault();
- if(!currentUser){$("reportStatus").textContent="Avval akkauntingizga kiring.";return;}
- const category=$("category").value,location=$("location").value.trim(),description=$("description").value.trim();
- const images=Array.from(imageInput.files||[]),video=videoInput.files?.[0]||null;
- if(!category||!location||!description){$("reportStatus").textContent="Barcha majburiy maydonlarni to‘ldiring.";return;}
- if(images.length>MAX_IMAGES||images.some(f=>!f.type.startsWith("image/")||f.size>MAX_IMAGE_BYTES)){ $("reportStatus").textContent="5 tagacha rasm tanlang, har biri 8 MB dan oshmasin.";return; }
- if(video&&(!video.type.startsWith("video/")||video.size>MAX_VIDEO_BYTES)){ $("reportStatus").textContent="Bitta video tanlang, hajmi 50 MB dan oshmasin.";return; }
- if(!storage){$("reportStatus").textContent="Firebase Storage ishga tushmagan. Firebase Console’da Storage sozlamasini tekshiring.";return;}
- const btn=$("sendReportBtn");btn.disabled=true;
- let uploaded=[];
- try{
-  $("reportStatus").textContent="Xabar tayyorlanmoqda...";
-  const profile=await getDoc(doc(db,"users",currentUser.uid));
-  const reportRef=doc(collection(db,"reports"));
-  $("reportStatus").textContent="Media fayllar yuklanmoqda...";
-  const imageResults=[];
-  for(let i=0;i<images.length;i++){const item=await uploadReportFile(images[i],currentUser.uid,reportRef.id,"image",i+1);imageResults.push(item);uploaded.push(item);}
-  let videoResult=null;
-  if(video){videoResult=await uploadReportFile(video,currentUser.uid,reportRef.id,"video",1);uploaded.push(videoResult);}
-  await setDoc(reportRef,{userId:currentUser.uid,userName:profile.exists()?(profile.data().name||"Talaba"):"Talaba",category,location,description,images:imageResults,video:videoResult,status:"pending",createdAt:serverTimestamp()});
-  $("reportForm").reset();$("imageInfo").textContent="Hozircha rasm tanlanmagan.";$("videoInfo").textContent="Hozircha video tanlanmagan.";
-  $("reportStatus").textContent="Xabaringiz va media fayllar yuborildi. Administrator tekshiruvini kuting.";
-  await loadMyReports();
- }catch(e){
-  await Promise.allSettled(uploaded.map(f=>deleteObject(storageRef(storage,f.path))));
-  $("reportStatus").textContent="Xabar yuborish xatosi: "+(e.code||"")+" — "+e.message;
- }finally{btn.disabled=false;}
-};
-
-function addMediaLinks(container,data){
- const media=[...(Array.isArray(data.images)?data.images:[])];
- if(data.video)media.push(data.video);
- media.forEach((m)=>{
-  if(!m||!m.url)return;
-  const wrap=document.createElement("div");wrap.style.margin="8px 0";
-  if(m.type==="image"){
-   const img=document.createElement("img");img.src=m.url;img.alt=m.name||"Xabar rasmi";img.loading="lazy";img.style.maxWidth="100%";img.style.maxHeight="220px";img.style.borderRadius="8px";wrap.appendChild(img);
-  }else if(m.type==="video"){
-   const v=document.createElement("video");v.src=m.url;v.controls=true;v.preload="metadata";v.style.width="100%";v.style.maxHeight="280px";wrap.appendChild(v);
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
   }
-  container.appendChild(wrap);
- });
-}
 
-async function loadMyReports(){const box=$("myReports");if(!currentUser){box.textContent="Xabarlaringizni ko‘rish uchun akkauntga kiring.";return;}box.textContent="Yuklanmoqda...";try{const q=query(collection(db,"reports"),where("userId","==",currentUser.uid),orderBy("createdAt","desc"),limit(20)),res=await getDocs(q);box.innerHTML="";if(res.empty){box.textContent="Hali xabar yubormagansiz.";return;}res.forEach(s=>{const d=s.data(),el=document.createElement("div");el.className="report";const title=document.createElement("strong");title.textContent=`${d.category||"Xabar"} — ${d.status==="approved"?"Tasdiqlandi":d.status==="rejected"?"Rad etildi":"Kutilmoqda"}`;const p=document.createElement("p");p.textContent=`${d.location||""}: ${d.description||""}`;el.append(title,p);addMediaLinks(el,d);box.appendChild(el);});}catch(e){box.textContent="Xabarlar xatosi: "+e.code+" — "+e.message;}}
-$("refreshMyReports").onclick=loadMyReports;
+  if (req.method !== "POST") {
+    return response({ error: "Method not allowed" }, 405);
+  }
 
-async function loadAdminReports(){const box=$("adminReports");if(!isAdmin){box.textContent="Administrator huquqi yo‘q.";return;}box.textContent="Yuklanmoqda...";try{const q=query(collection(db,"reports"),where("status","==","pending"),orderBy("createdAt","asc"),limit(50)),res=await getDocs(q);box.innerHTML="";if(res.empty){box.textContent="Kutilayotgan xabarlar yo‘q.";return;}res.forEach(s=>{const d=s.data(),el=document.createElement("div");el.className="report";const h=document.createElement("h3");h.textContent=d.category||"Xabar";const p=document.createElement("p");p.textContent=`Talaba: ${d.userName||"Talaba"} | Joy: ${d.location||"—"}`;const desc=document.createElement("p");desc.textContent=d.description||"";el.append(h,p,desc);addMediaLinks(el,d);if(d.imageUrl){const a=document.createElement("a");a.href=d.imageUrl;a.target="_blank";a.rel="noopener";a.textContent="Eski rasm havolasini ochish";el.appendChild(a);}for(const [label,decision,cls] of [["Tasdiqlash","approved",""],["Rad etish","rejected","danger"]]){const b=document.createElement("button");b.className="btn "+cls;b.textContent=label;b.onclick=async()=>{if(!confirm(label+"?"))return;try{$("adminStatus").textContent="Qaror yuborilmoqda...";const review= httpsCallable(functions,"reviewReport");await review({reportId:s.id,decision});$("adminStatus").textContent="Qaror saqlandi.";await loadAdminReports();await loadLeaderboard();}catch(e){$("adminStatus").textContent="Xatolik: "+e.code+" — "+e.message;}};el.appendChild(b);}box.appendChild(el);});}catch(e){box.textContent="Admin xatosi: "+e.code+" — "+e.message;}}
-$("refreshAdmin").onclick=loadAdminReports;
+  try {
+    const token = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "");
+    if (!token) return response({ error: "Login required" }, 401);
 
-if(auth&&db){onAuthStateChanged(auth,async user=>{currentUser=user;$("authForms").hidden=!!user;$("signedIn").hidden=!user;$("admin").hidden=true;$("adminNav").hidden=true;isAdmin=false;if(!user){$("userName").textContent="";$("userEmail").textContent="";$("roleInfo").textContent="";showPoints(0);$("ecoPoints").textContent="—";$("ecoLevel").textContent="—";$("ecoNext").textContent="Ballarni ko‘rish uchun akkauntga kiring.";await loadMyReports();await loadLeaderboard();return;}$("userEmail").textContent=user.email||"";try{const ref=doc(db,"users",user.uid);let snap=await getDoc(ref);if(!snap.exists()){const name=$("fullName").value.trim()||(user.email?user.email.split("@")[0]:"Talaba");await setDoc(ref,{name,points:0,createdAt:serverTimestamp()});snap=await getDoc(ref);}const d=snap.data();$("userName").textContent=d.name||"Talaba";showPoints(Number(d.points)||0);const token=await user.getIdTokenResult(true);isAdmin=token.claims.isAdmin===true;$("roleInfo").textContent=isAdmin?"Administrator huquqi faol.":"Talaba akkaunti.";if(isAdmin){$("admin").hidden=false;$("adminNav").hidden=false;await loadAdminReports();}status("Akkauntingiz Firebase bilan ulandi.");}catch(e){status("Profil xatosi: "+e.code+" — "+e.message);}await loadMyReports();await loadLeaderboard();});}
-</script>
-</body>
-</html>
+    const { payload } = await jwtVerify(token, JWKS, {
+      issuer: `https://securetoken.google.com/${projectId}`,
+      audience: projectId
+    });
+
+    const uid = payload.sub;
+    if (!uid) return response({ error: "Invalid user" }, 401);
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SERVICE_ROLE_KEY")!
+    );
+
+    const body = await req.json();
+
+    if (body.action === "upload") {
+      const { fileName, fileType, fileSize, reportId, kind, index } = body;
+
+      const allowed = ["image/jpeg", "image/png", "image/webp", "video/mp4"];
+      if (!allowed.includes(fileType)) {
+        return response({ error: "Invalid file type" }, 400);
+      }
+
+      const isVideo = fileType === "video/mp4";
+      const maxSize = isVideo ? 50 * 1024 * 1024 : 8 * 1024 * 1024;
+
+      if (!Number.isFinite(fileSize) || fileSize <= 0 || fileSize > maxSize) {
+        return response({ error: "File size limit exceeded" }, 400);
+      }
+
+      if (!/^[a-zA-Z0-9_-]{1,100}$/.test(reportId)) {
+        return response({ error: "Invalid report ID" }, 400);
+      }
+
+      if (!["image", "video"].includes(kind)) {
+        return response({ error: "Invalid media kind" }, 400);
+      }
+
+      if ((kind === "video") !== isVideo) {
+        return response({ error: "Media type mismatch" }, 400);
+      }
+
+      const ext = String(fileName || "file")
+        .split(".").pop()?.toLowerCase()
+        .replace(/[^a-z0-9]/g, "").slice(0, 8) || "file";
+
+      const path = `reports/${uid}/${reportId}/${kind}_${index}_${crypto.randomUUID()}.${ext}`;
+
+      const { data, error } = await supabase.storage
+        .from("eco-signal-media")
+        .createSignedUploadUrl(path);
+
+      if (error) throw error;
+
+      return response({ path, token: data.token });
+    }
+
+    if (body.action === "view") {
+      const path = String(body.path || "");
+      const isOwner = path.startsWith(`reports/${uid}/`);
+      const isAdmin = payload.isAdmin === true;
+
+      if (!path.startsWith("reports/") || (!isOwner && !isAdmin)) {
+        return response({ error: "Access denied" }, 403);
+      }
+
+      const { data, error } = await supabase.storage
+        .from("eco-signal-media")
+        .createSignedUrl(path, 3600);
+
+      if (error) throw error;
+
+      return response({ signedUrl: data.signedUrl });
+    }
+
+    return response({ error: "Unknown action" }, 400);
+
+  } catch (error) {
+    console.error(error);
+    return response({ error: String(error) }, 400);
+  }
+});
