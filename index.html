@@ -41,7 +41,14 @@ textarea{min-height:100px;resize:vertical}.btn{background:#16804f;color:white;bo
 </section>
 
 <section class="card" id="account"><h2>👤 Talaba akkaunti</h2>
-<div id="authForms"><input id="fullName" placeholder="Ism va familiya (ro‘yxatdan o‘tishda)" autocomplete="name"><input id="email" type="email" placeholder="Email manzilingiz" autocomplete="email"><input id="password" type="password" placeholder="Parol (kamida 6 belgi)" autocomplete="current-password"><button class="btn" id="registerBtn" type="button">Ro‘yxatdan o‘tish</button><button class="btn" id="loginBtn" type="button">Kirish</button></div>
+<div id="authForms">
+  <input id="fullName" placeholder="Ism va familiya (ro‘yxatdan o‘tishda)" autocomplete="name">
+  <input id="email" type="email" placeholder="Email manzilingiz" autocomplete="email">
+  <input id="password" type="password" placeholder="Parol (kamida 6 belgi)" autocomplete="current-password">
+  <button class="btn" id="registerBtn" type="button">Ro‘yxatdan o‘tish</button>
+  <button class="btn" id="loginBtn" type="button">Kirish</button>
+  <button class="btn" id="resetPasswordBtn" type="button">Parolni unutdingizmi?</button>
+</div>
 <div id="signedIn" hidden><p>Akkaunt: <strong id="userName"></strong></p><p id="userEmail"></p><p id="roleInfo" class="note"></p><button class="btn" id="logoutBtn" type="button">Chiqish</button></div>
 <p id="status" class="status" role="status">Firebase bilan ulanish kutilmoqda...</p></section>
 
