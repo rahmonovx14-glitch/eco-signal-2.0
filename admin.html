@@ -4,117 +4,286 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ECO-SIGNAL — Admin Panel</title>
+<title>ECO-SIGNAL 2.0 | Admin Panel</title>
+
 <style>
-body{font-family:Arial;background:#101b16;color:white;margin:0;padding:20px}
-main{max-width:900px;margin:auto}
+*{box-sizing:border-box}
+body{
+ margin:0;padding:20px;
+ background:#101b16;color:white;
+ font-family:Arial,sans-serif
+}
+main{max-width:950px;margin:auto}
 h1{color:#65d68a}
-button{padding:10px 16px;margin:5px;border:0;border-radius:7px;cursor:pointer}
+header{
+ background:#1c2c23;padding:20px;
+ border-radius:12px;margin-bottom:20px
+}
+button{
+ padding:11px 16px;border:0;border-radius:7px;
+ cursor:pointer;margin:5px;font-weight:bold
+}
+button:disabled{opacity:.5;cursor:not-allowed}
 .approve{background:#269b55;color:white}
 .reject{background:#b83232;color:white}
-.report{background:#1c2c23;padding:15px;margin:12px 0;border-radius:10px}
-img,video{max-width:100%;max-height:250px;display:block;margin:8px 0}
+.neutral{background:#34483c;color:white}
+.report{
+ background:#1c2c23;padding:17px;
+ margin:14px 0;border-radius:10px
+}
+.report img,.report video{
+ max-width:100%;max-height:280px;
+ display:block;margin:10px 0;border-radius:8px
+}
+.muted{color:#b5c7bb}
 #panel{display:none}
+#status{padding:10px;background:#1c2c23;border-radius:8px}
 </style>
 </head>
+
 <body>
 <main>
+
+<header>
 <h1>ECO-SIGNAL 2.0</h1>
 <h2>ADMIN PANEL</h2>
-<p id="status">Tekshirilmoqda...</p>
+<p>Ekologik muammolarni boshqarish tizimi</p>
+<p id="role">Rol: tekshirilmoqda...</p>
+<p id="status">Firebase bilan bog‘lanmoqda...</p>
+</header>
+
 <section id="panel">
-<h3>Kelgan ekologik xabarlar</h3>
-<button id="refresh">Yangilash</button>
-<button id="logout">Chiqish</button>
+<h2>Kelgan xabarlar</h2>
+
+<button class="neutral" id="refresh">Yangilash</button>
+<button class="neutral" id="logout">Chiqish</button>
+
 <div id="reports">Yuklanmoqda...</div>
 </section>
+
 </main>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import {getFirestore,collection,getDocs,query,where,orderBy,limit} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-import {getFunctions,httpsCallable} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
+
+import {initializeApp}
+from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+import {
+ getAuth,onAuthStateChanged,signOut
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+import {
+ getFirestore,collection,getDocs,query,
+ where,orderBy,limit,doc,getDoc,
+ updateDoc,serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig={
-apiKey:"AIzaSyBb-EV5Ws-uojOujnQZgPO2cImBzUjdFaw",
-authDomain:"eco-signal-2.firebaseapp.com",
-projectId:"eco-signal-2",
-storageBucket:"eco-signal-2.firebasestorage.app",
-messagingSenderId:"759381647993",
-appId:"1:759381647993:web:41ada6895b5218ca0aaaa8"
+ apiKey:"AIzaSyBb-EV5Ws-uojOujnQZgPO2cImBzUjdFaw",
+ authDomain:"eco-signal-2.firebaseapp.com",
+ projectId:"eco-signal-2",
+ storageBucket:"eco-signal-2.firebasestorage.app",
+ messagingSenderId:"759381647993",
+ appId:"1:759381647993:web:41ada6895b5218ca0aaaa8"
 };
 
 const app=initializeApp(firebaseConfig);
 const auth=getAuth(app);
 const db=getFirestore(app);
-const functions=getFunctions(app);
+
 const $=id=>document.getElementById(id);
 
+let currentUser=null;
+let currentRole="";
+
+function message(text){
+ $("status").textContent=text;
+}
+
 onAuthStateChanged(auth,async user=>{
+
+ currentUser=user;
  $("panel").style.display="none";
- if(!user){$("status").textContent="Avval asosiy saytda akkauntingizga kiring.";return;}
+
+ if(!user){
+  $("role").textContent="Rol: aniqlanmagan";
+  message("Avval asosiy ECO-SIGNAL saytiga kiring.");
+  return;
+ }
+
  try{
-  const token=await user.getIdTokenResult(true);
-  if(token.claims.isAdmin!==true){
-   $("status").textContent="Ruxsat yo‘q. Bu panel faqat bosh administrator uchun.";
+
+  const adminRef=doc(db,"admins",user.uid);
+  const adminSnap=await getDoc(adminRef);
+
+  if(!adminSnap.exists()){
+   message("Ruxsat yo‘q. Siz adminlar ro‘yxatida emassiz.");
    return;
   }
-  $("status").textContent="Administrator sifatida kirdingiz.";
+
+  currentRole=adminSnap.data().role;
+
+  if(!["owner","admin","volunteer"].includes(currentRole)){
+   message("Noma'lum foydalanuvchi roli.");
+   return;
+  }
+
+  const roleNames={
+   owner:"OWNER",
+   admin:"ADMIN",
+   volunteer:"VOLUNTEER"
+  };
+
+  $("role").textContent="Rol: "+roleNames[currentRole];
+
   $("panel").style.display="block";
-  loadReports();
- }catch(e){$("status").textContent="Tekshiruv xatosi: "+e.message;}
+
+  message("Panelga muvaffaqiyatli kirdingiz.");
+
+  await loadReports();
+
+ }catch(e){
+  message("Kirish xatosi: "+e.code+" — "+e.message);
+ }
+
 });
 
 async function loadReports(){
+
  const box=$("reports");
- box.textContent="Yuklanmoqda...";
+ box.textContent="Xabarlar yuklanmoqda...";
+
  try{
-  const q=query(collection(db,"reports"),
+
+  const q=query(
+   collection(db,"reports"),
    where("status","==","pending"),
-   orderBy("createdAt","asc"),limit(50));
+   orderBy("createdAt","asc"),
+   limit(50)
+  );
+
   const result=await getDocs(q);
+
   box.innerHTML="";
-  if(result.empty){box.textContent="Yangi xabarlar yo‘q.";return;}
+
+  if(result.empty){
+   box.textContent="Hozircha yangi xabarlar yo‘q.";
+   return;
+  }
+
   result.forEach(s=>{
+
    const d=s.data();
+
    const el=document.createElement("div");
    el.className="report";
+
    const title=document.createElement("h3");
    title.textContent=d.category||"Ekologik xabar";
+
    const info=document.createElement("p");
-   info.textContent="Talaba: "+(d.userName||"—")+" | Joy: "+(d.location||"—");
+   info.textContent=
+    "Talaba: "+(d.userName||"—")+
+    " | Joy: "+(d.location||"—");
+
    const desc=document.createElement("p");
    desc.textContent=d.description||"";
+
    el.append(title,info,desc);
-   (d.images||[]).forEach(m=>{
-    if(m.url){const img=document.createElement("img");img.src=m.url;el.append(img);}
-   });
-   if(d.video?.url){const v=document.createElement("video");v.src=d.video.url;v.controls=true;el.append(v);}
-   for(const [label,decision,cls] of [
-    ["Tasdiqlash","approved","approve"],
-    ["Rad etish","rejected","reject"]
-   ]){
-    const b=document.createElement("button");
-    b.textContent=label;b.className=cls;
-    b.onclick=async()=>{
-     if(!confirm(label+"?"))return;
-     try{
-      const review=httpsCallable(functions,"reviewReport");
-      await review({reportId:s.id,decision});
-      alert("Qaror saqlandi.");
-      loadReports();
-     }catch(e){alert("Xato: "+e.message);}
-    };
-    el.append(b);
+
+   if(Array.isArray(d.images)){
+    d.images.forEach(m=>{
+     if(m.url){
+      const img=document.createElement("img");
+      img.src=m.url;
+      img.alt="Xabar rasmi";
+      img.loading="lazy";
+      el.appendChild(img);
+     }
+    });
    }
-   box.append(el);
+
+   if(d.video?.url){
+    const video=document.createElement("video");
+    video.src=d.video.url;
+    video.controls=true;
+    el.appendChild(video);
+   }
+
+   if(currentRole==="owner"||currentRole==="admin"){
+
+    const approve=document.createElement("button");
+    approve.textContent="Tasdiqlash";
+    approve.className="approve";
+
+    approve.onclick=()=>reviewReport(s.id,"approved",approve);
+
+    const reject=document.createElement("button");
+    reject.textContent="Rad etish";
+    reject.className="reject";
+
+    reject.onclick=()=>reviewReport(s.id,"rejected",reject);
+
+    el.append(approve,reject);
+
+   }else{
+
+    const note=document.createElement("p");
+    note.className="muted";
+    note.textContent="Siz xabarni kuzatish huquqiga egasiz.";
+    el.appendChild(note);
+
+   }
+
+   box.appendChild(el);
+
   });
- }catch(e){box.textContent="Xato: "+e.code+" — "+e.message;}
+
+ }catch(e){
+
+  box.textContent="Xabarlar xatosi: "+e.code+" — "+e.message;
+
+ }
+
 }
+
+async function reviewReport(reportId,decision,button){
+
+ const label=decision==="approved"?"Tasdiqlash":"Rad etish";
+
+ if(!confirm(label+"ni xohlaysizmi?"))return;
+
+ button.disabled=true;
+
+ try{
+
+  await updateDoc(doc(db,"reports",reportId),{
+   status:decision,
+   reviewedAt:serverTimestamp(),
+   reviewedBy:currentUser.uid
+  });
+
+  message("Qaror muvaffaqiyatli saqlandi.");
+
+  await loadReports();
+
+ }catch(e){
+
+  message("Qaror saqlanmadi: "+e.code+" — "+e.message);
+  button.disabled=false;
+
+ }
+
+}
+
 $("refresh").onclick=loadReports;
-$("logout").onclick=()=>signOut(auth);
+
+$("logout").onclick=async()=>{
+ await signOut(auth);
+};
+
 </script>
 </body>
 </html>
+
 
