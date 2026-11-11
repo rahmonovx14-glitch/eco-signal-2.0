@@ -1,1 +1,120 @@
 
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECO-SIGNAL — Admin Panel</title>
+<style>
+body{font-family:Arial;background:#101b16;color:white;margin:0;padding:20px}
+main{max-width:900px;margin:auto}
+h1{color:#65d68a}
+button{padding:10px 16px;margin:5px;border:0;border-radius:7px;cursor:pointer}
+.approve{background:#269b55;color:white}
+.reject{background:#b83232;color:white}
+.report{background:#1c2c23;padding:15px;margin:12px 0;border-radius:10px}
+img,video{max-width:100%;max-height:250px;display:block;margin:8px 0}
+#panel{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>ECO-SIGNAL 2.0</h1>
+<h2>ADMIN PANEL</h2>
+<p id="status">Tekshirilmoqda...</p>
+<section id="panel">
+<h3>Kelgan ekologik xabarlar</h3>
+<button id="refresh">Yangilash</button>
+<button id="logout">Chiqish</button>
+<div id="reports">Yuklanmoqda...</div>
+</section>
+</main>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import {getFirestore,collection,getDocs,query,where,orderBy,limit} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import {getFunctions,httpsCallable} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-functions.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBb-EV5Ws-uojOujnQZgPO2cImBzUjdFaw",
+authDomain:"eco-signal-2.firebaseapp.com",
+projectId:"eco-signal-2",
+storageBucket:"eco-signal-2.firebasestorage.app",
+messagingSenderId:"759381647993",
+appId:"1:759381647993:web:41ada6895b5218ca0aaaa8"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const functions=getFunctions(app);
+const $=id=>document.getElementById(id);
+
+onAuthStateChanged(auth,async user=>{
+ $("panel").style.display="none";
+ if(!user){$("status").textContent="Avval asosiy saytda akkauntingizga kiring.";return;}
+ try{
+  const token=await user.getIdTokenResult(true);
+  if(token.claims.isAdmin!==true){
+   $("status").textContent="Ruxsat yo‘q. Bu panel faqat bosh administrator uchun.";
+   return;
+  }
+  $("status").textContent="Administrator sifatida kirdingiz.";
+  $("panel").style.display="block";
+  loadReports();
+ }catch(e){$("status").textContent="Tekshiruv xatosi: "+e.message;}
+});
+
+async function loadReports(){
+ const box=$("reports");
+ box.textContent="Yuklanmoqda...";
+ try{
+  const q=query(collection(db,"reports"),
+   where("status","==","pending"),
+   orderBy("createdAt","asc"),limit(50));
+  const result=await getDocs(q);
+  box.innerHTML="";
+  if(result.empty){box.textContent="Yangi xabarlar yo‘q.";return;}
+  result.forEach(s=>{
+   const d=s.data();
+   const el=document.createElement("div");
+   el.className="report";
+   const title=document.createElement("h3");
+   title.textContent=d.category||"Ekologik xabar";
+   const info=document.createElement("p");
+   info.textContent="Talaba: "+(d.userName||"—")+" | Joy: "+(d.location||"—");
+   const desc=document.createElement("p");
+   desc.textContent=d.description||"";
+   el.append(title,info,desc);
+   (d.images||[]).forEach(m=>{
+    if(m.url){const img=document.createElement("img");img.src=m.url;el.append(img);}
+   });
+   if(d.video?.url){const v=document.createElement("video");v.src=d.video.url;v.controls=true;el.append(v);}
+   for(const [label,decision,cls] of [
+    ["Tasdiqlash","approved","approve"],
+    ["Rad etish","rejected","reject"]
+   ]){
+    const b=document.createElement("button");
+    b.textContent=label;b.className=cls;
+    b.onclick=async()=>{
+     if(!confirm(label+"?"))return;
+     try{
+      const review=httpsCallable(functions,"reviewReport");
+      await review({reportId:s.id,decision});
+      alert("Qaror saqlandi.");
+      loadReports();
+     }catch(e){alert("Xato: "+e.message);}
+    };
+    el.append(b);
+   }
+   box.append(el);
+  });
+ }catch(e){box.textContent="Xato: "+e.code+" — "+e.message;}
+}
+$("refresh").onclick=loadReports;
+$("logout").onclick=()=>signOut(auth);
+</script>
+</body>
+</html>
+
