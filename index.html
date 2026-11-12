@@ -491,7 +491,8 @@ async function addMediaLinks(container,data){
  }
 }
 
-async function loadMyReports(){
+
+  box.textConasync function loadMyReports(){
  const box=$("myReports");
  if(!currentUser){
   box.textContent="Xabarlaringizni ko‘rish uchun akkauntga kiring.";
@@ -521,7 +522,7 @@ async function loadMyReports(){
    await addMediaLinks(el,d);
    box.appendChild(el);
   }
- }catch(e){
+  }catch(e){
   box.textContent="Xabarlar xatosi: "+e.code+" — "+e.message;
  }
 }
