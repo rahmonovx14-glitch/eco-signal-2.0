@@ -168,7 +168,7 @@ const SUPABASE_PUBLIC_KEY = "sb_publishable_HUEJZZLjcKCd7gCiPzMpXA_LPi1WahC";
 const supabase = createClient(SUPABASE_URL,SUPABASE_PUBLIC_KEY);
 const $ = id => document.getElementById(id);
 const status = msg => $("status").textContent = msg;
-
+status("JavaScript ishga tushdi.");
 let auth,db,functions,currentUser=null,isAdmin=false;
 
 try{
