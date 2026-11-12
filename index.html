@@ -308,7 +308,7 @@ async function callMediaFunction(payload){
  if(!currentUser)throw new Error("Avval akkauntingizga kiring.");
  const idToken=await currentUser.getIdToken();
 
- const response=await fetch(`${SUPABASE_URL}/functions/v1/upload-media`,{
+ const response=await fetch(`${SUPABASE_URL}/functions/v1/dynamic-handler`,{
   method:"POST",
   headers:{
    "Content-Type":"application/json",
